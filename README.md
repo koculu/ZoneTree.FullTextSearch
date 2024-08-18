@@ -1,6 +1,7 @@
 # ZoneTree.FullTextSearch
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
+[![Downloads](https://img.shields.io/nuget/dt/ZoneTree.FullTextSearch)](https://www.nuget.org/packages/ZoneTree.FullTextSearch/)
 ![Platform](https://img.shields.io/badge/platform-.NET-blue.svg)
 ![Build](https://img.shields.io/badge/build-passing-brightgreen.svg)
 
