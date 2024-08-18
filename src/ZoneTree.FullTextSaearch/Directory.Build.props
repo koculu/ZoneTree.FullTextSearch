@@ -1,0 +1,32 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <Copyright>Ahmed Yasin Koculu</Copyright>
+    <Authors>Ahmed Yasin Koculu</Authors>
+    <PackageId>ZoneTree.FullTextSearch</PackageId>
+    <Title>ZoneTree.FullTextSearch</Title>
+    <ProductVersion>1.0.0.0</ProductVersion>
+    <Version>1.0.0.0</Version>
+    <Authors>Ahmed Yasin Koculu</Authors>
+    <AssemblyTitle>ZoneTree.FullTextSearch</AssemblyTitle>
+    <Description>ZoneTree.FullTextSearch is an open-source library that extends ZoneTree to provide efficient full-text search capabilities. It offers a fast, embedded search engine suitable for applications that require high performance and do not rely on external databases.</Description>
+    <Summmary>
+      ZoneTree.FullTextSearch is an open-source library that extends ZoneTree to provide efficient full-text search capabilities. It offers a fast, embedded search engine suitable for applications that require high performance and do not rely on external databases.
+    </Summmary>
+    <PackageTags>full-text search, search engine, embedded search, ZoneTree, indexing, dual-key storage, high performance, C#, .NET, open source, data indexing, full-text indexing, search library, unmanaged types, data retrieval</PackageTags>
+    <ReleaseNotes></ReleaseNotes>
+    <Company>koculu</Company>
+
+    <PackageProjectUrl>https://github.com/koculu/ZoneTree.FullTextSearch</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+
+    <AnalysisMode>All</AnalysisMode>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <DebugType>portable</DebugType>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+</Project>

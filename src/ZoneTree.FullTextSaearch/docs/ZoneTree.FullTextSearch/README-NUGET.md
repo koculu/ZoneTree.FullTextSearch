@@ -258,7 +258,7 @@ Future Search Engines: Additional search engines, such as Phrase Search Engine a
 
 ## License
 
-ZoneTree.FullTextSearch is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+ZoneTree.FullTextSearch is licensed under the MIT License. See the [LICENSE](https://github.com/koculu/ZoneTree.FullTextSearch/blob/main/LICENSE) file for more details.
 
 ---
 
