@@ -7,7 +7,10 @@ public class RecordTableTests
     [Test]
     public void UpsertRecord_ShouldInsertRecordAndValueIntoBothZoneTrees()
     {
-        using var recordTable = new RecordTable<int, string>("data/UpsertRecord_ShouldInsertRecordAndValueIntoBothZoneTrees");
+        var dataPath = "data/UpsertRecord_ShouldInsertRecordAndValueIntoBothZoneTrees";
+        if (Directory.Exists(dataPath))
+            Directory.Delete(dataPath, true);
+        using var recordTable = new RecordTable<int, string>(dataPath);
 
         // Arrange
         int record = 1;
@@ -26,7 +29,10 @@ public class RecordTableTests
     [Test]
     public void GetLastRecord_ShouldReturnLastInsertedRecord()
     {
-        using var recordTable = new RecordTable<int, string>("data/GetLastRecord_ShouldReturnLastInsertedRecord");
+        var dataPath = "data/GetLastRecord_ShouldReturnLastInsertedRecord";
+        if (Directory.Exists(dataPath))
+            Directory.Delete(dataPath, true);
+        using var recordTable = new RecordTable<int, string>(dataPath);
 
         // Arrange
         int record1 = 1;
@@ -46,7 +52,10 @@ public class RecordTableTests
     [Test]
     public void GetValue_ShouldReturnAssociatedValueForRecord()
     {
-        using var recordTable = new RecordTable<int, string>("data/GetValue_ShouldReturnAssociatedValueForRecord");
+        var dataPath = "data/GetValue_ShouldReturnAssociatedValueForRecord";
+        if (Directory.Exists(dataPath))
+            Directory.Delete(dataPath, true);
+        using var recordTable = new RecordTable<int, string>(dataPath);
 
         // Arrange
         int record = 1;
@@ -63,7 +72,10 @@ public class RecordTableTests
     [Test]
     public void TryGetRecord_ShouldReturnTrueAndRecordWhenValueExists()
     {
-        using var recordTable = new RecordTable<int, string>("data/TryGetRecord_ShouldReturnTrueAndRecordWhenValueExists");
+        var dataPath = "data/TryGetRecord_ShouldReturnTrueAndRecordWhenValueExists";
+        if (Directory.Exists(dataPath))
+            Directory.Delete(dataPath, true);
+        using var recordTable = new RecordTable<int, string>(dataPath);
 
         // Arrange
         int record = 1;
@@ -81,7 +93,10 @@ public class RecordTableTests
     [Test]
     public void TryGetRecord_ShouldReturnFalseWhenValueDoesNotExist()
     {
-        using var recordTable = new RecordTable<int, string>("data/TryGetRecord_ShouldReturnFalseWhenValueDoesNotExist");
+        var dataPath = "data/TryGetRecord_ShouldReturnFalseWhenValueDoesNotExist";
+        if (Directory.Exists(dataPath))
+            Directory.Delete(dataPath, true);
+        using var recordTable = new RecordTable<int, string>(dataPath);
 
         // Act
         bool found = recordTable.TryGetRecord("NonExistentValue", out int _);

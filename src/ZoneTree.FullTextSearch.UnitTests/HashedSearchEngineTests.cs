@@ -8,8 +8,11 @@ public class HashedSearchEngineTests
     [Test]
     public void AddRecord_ShouldAddRecordToIndex()
     {
+        var dataPath = "data/AddRecord_ShouldAddRecordToIndex";
+        if (Directory.Exists(dataPath))
+            Directory.Delete(dataPath, true);
         using var searchEngine = new HashedSearchEngine<int>(
-            "data/AddRecord_ShouldAddRecordToIndex");
+            dataPath);
 
         // Arrange
         int record = 1;
@@ -27,8 +30,10 @@ public class HashedSearchEngineTests
     [Test]
     public void DeleteRecord_ShouldRemoveRecordFromIndex()
     {
-        using var searchEngine = new HashedSearchEngine<int>(
-            "data/DeleteRecord_ShouldRemoveRecordFromIndex");
+        var dataPath = "data/DeleteRecord_ShouldRemoveRecordFromIndex";
+        if (Directory.Exists(dataPath))
+            Directory.Delete(dataPath, true);
+        using var searchEngine = new HashedSearchEngine<int>(dataPath);
 
         // Arrange
         int record = 1;
@@ -47,8 +52,10 @@ public class HashedSearchEngineTests
     [Test]
     public void Search_WithRespectTokenOrderTrue_ShouldReturnRecords()
     {
-        using var searchEngine = new HashedSearchEngine<int>(
-            "data/Search_WithRespectTokenOrderTrue_ShouldReturnRecords");
+        var dataPath = "data/Search_WithRespectTokenOrderTrue_ShouldReturnRecords";
+        if (Directory.Exists(dataPath))
+            Directory.Delete(dataPath, true);
+        using var searchEngine = new HashedSearchEngine<int>(dataPath);
 
         // Arrange
         int record1 = 1;
@@ -68,8 +75,10 @@ public class HashedSearchEngineTests
     [Test]
     public void Search_WithRespectTokenOrderFalse_ShouldReturnRecordsRegardlessOfOrder()
     {
-        using var searchEngine = new HashedSearchEngine<int>(
-            "data/Search_WithRespectTokenOrderFalse_ShouldReturnRecordsRegardlessOfOrder");
+        var dataPath = "data/Search_WithRespectTokenOrderFalse_ShouldReturnRecordsRegardlessOfOrder";
+        if (Directory.Exists(dataPath))
+            Directory.Delete(dataPath, true);
+        using var searchEngine = new HashedSearchEngine<int>(dataPath);
 
         // Arrange
         int record1 = 1;
@@ -89,8 +98,10 @@ public class HashedSearchEngineTests
     [Test]
     public void Search_WithSkipAndLimit_ShouldReturnLimitedRecords()
     {
-        using var searchEngine = new HashedSearchEngine<int>(
-            "data/Search_WithSkipAndLimit_ShouldReturnLimitedRecords");
+        var dataPath = "data/Search_WithSkipAndLimit_ShouldReturnLimitedRecords";
+        if (Directory.Exists(dataPath))
+            Directory.Delete(dataPath, true);
+        using var searchEngine = new HashedSearchEngine<int>(dataPath);
 
         // Arrange
         searchEngine.AddRecord(1, "record one");
@@ -109,8 +120,11 @@ public class HashedSearchEngineTests
     public void Dispose_ShouldDisposeIndexProperly()
     {
         // Arrange
-        var searchEngine = new HashedSearchEngine<int>(
-            "data/Dispose_ShouldDisposeIndexProperly");
+        var dataPath = "data/Dispose_ShouldDisposeIndexProperly";
+        if (Directory.Exists(dataPath))
+            Directory.Delete(dataPath, true);
+
+        using var searchEngine = new HashedSearchEngine<int>(dataPath);
         searchEngine.AddRecord(1, "sample");
 
         // Act        

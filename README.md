@@ -96,6 +96,72 @@ To delete a record from the search engine:
 searchEngine.DeleteRecord(1);
 ```
 
+### Pagination
+
+In addition to basic searching, you can easily implement pagination using the `skip` and `limit` parameters in the `Search` method. This is especially useful when dealing with large datasets where you only want to display a subset of the results at a time.
+
+```csharp
+var resultsPage1 = searchEngine.Search(
+    search: "quick fox",
+    respectTokenOrder: true,
+    skip: 0, // Skip 0 records, start from the beginning
+    limit: 10 // Limit to 10 records in this page
+);
+
+var resultsPage2 = searchEngine.Search(
+    search: "quick fox",
+    respectTokenOrder: true,
+    skip: 10, // Skip the first 10 records
+    limit: 10 // Limit to 10 records in this page
+);
+```
+
+### Adding Facets
+
+To associate a facet (e.g., category, author) with a record:
+
+```csharp
+searchEngine.AddFacet(1, "category", "books");
+searchEngine.AddFacet(1, "author", "John Doe");
+```
+
+### Deleting Facets
+
+To remove a specific facet associated with a record:
+
+```csharp
+searchEngine.DeleteFacet(1, "category", "books");
+searchEngine.DeleteFacet(1, "author", "John Doe");
+```
+
+### Faceted Search
+
+If you're also filtering by facets, you can still apply pagination by specifying the `skip` and `limit` parameters:
+
+```csharp
+var facets = new Dictionary<string, string>
+{
+    { "category", "books" },
+    { "author", "John Doe" }
+};
+
+var paginatedFacetedResultsPage1 = searchEngine.Search(
+    search: "quick fox",
+    facets: facets,
+    respectTokenOrder: true,
+    skip: 0, // Start from the first matching record
+    limit: 10 // Retrieve up to 10 records
+);
+
+var paginatedFacetedResultsPage2 = searchEngine.Search(
+    search: "quick fox",
+    facets: facets,
+    respectTokenOrder: true,
+    skip: 10, // Skip the first 10 matching records
+    limit: 10 // Retrieve the next 10 records
+);
+```
+
 ### Cleanup
 
 When you're done using the search engine, ensure proper cleanup:
@@ -259,7 +325,7 @@ Future Search Engines: Additional search engines, such as Phrase Search Engine a
 
 ## License
 
-ZoneTree.FullTextSearch is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+ZoneTree.FullTextSearch is licensed under the MIT License. See the [LICENSE](https://github.com/koculu/ZoneTree.FullTextSearch/blob/main/LICENSE) file for more details.
 
 ---
 
