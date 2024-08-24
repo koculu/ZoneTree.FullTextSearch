@@ -27,26 +27,35 @@ public sealed class HashedSearchEngine<TRecord> : IDisposable
     readonly IWordTokenizer WordTokenizer;
 
     /// <summary>
+    /// The hash code generator used to generate hash codes for tokens.
+    /// </summary>
+    readonly IHashCodeGenerator HashCodeGenerator;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="HashedSearchEngine{TRecord}"/> class.
     /// </summary>
     /// <param name="dataPath">The path to the data storage, defaulting to "data".</param>    
     /// <param name="useSecondaryIndex">Indicates whether a secondary index should be used to perform faster deletion.</param>
-    /// <param name="refComparer">The comparer used to manage references to records.</param>
+    /// <param name="recordComparer">The comparer used to manage references to records.</param>
     /// <param name="wordTokenizer">The tokenizer used to split words. If null, a default tokenizer is used.</param>
+    /// <param name="hashCodeGenerator">The hash code generator used to generate hash codes for the tokens. If null, a default generator is used.</param>
     public HashedSearchEngine(
         string dataPath = "data",
         bool useSecondaryIndex = false,
         IWordTokenizer wordTokenizer = null,
-        IRefComparer<TRecord> refComparer = null)
+        IRefComparer<TRecord> recordComparer = null,
+        IHashCodeGenerator hashCodeGenerator = null)
     {
+        HashCodeGenerator = hashCodeGenerator ?? new DefaultHashCodeGenerator();
         Index = new(
             dataPath,
-            refComparer,
+            recordComparer,
             new UInt64ComparerAscending(),
-            useSecondaryIndex
-            );
+            useSecondaryIndex);
         Index.FacetPreviousToken = ulong.MaxValue;
-        WordTokenizer = wordTokenizer ?? new WordTokenizer();
+        WordTokenizer =
+            wordTokenizer ??
+            new WordTokenizer(hashCodeGenerator: HashCodeGenerator);
     }
 
     /// <summary>
@@ -93,14 +102,14 @@ public sealed class HashedSearchEngine<TRecord> : IDisposable
         return Index.DeleteRecord(record);
     }
 
-    static ulong GetFacetToken(string name, string value)
+    ulong GetFacetToken(string name, string value)
     {
         var text = $"{{${name}:{value}}}";
         var memory = text.AsMemory();
         return HashCodeGenerator.GetHashCode(memory);
     }
 
-    static ulong[] GetFacetTokens(IReadOnlyDictionary<string, string> facets)
+    ulong[] GetFacetTokens(IReadOnlyDictionary<string, string> facets)
     {
         if (facets == null) return [];
         return facets.Select(x => GetFacetToken(x.Key, x.Value)).ToArray();

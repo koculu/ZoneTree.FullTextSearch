@@ -177,7 +177,7 @@ searchEngine.Dispose();
 You can implement your own tokenizer by adhering to the `IWordTokenizer` interface:
 
 ```csharp
-public class CustomTokenizer : IWordTokenizer
+public sealed class CustomTokenizer : IWordTokenizer
 {
     public IReadOnlyList<Slice> GetSlices(ReadOnlySpan<char> text)
     {

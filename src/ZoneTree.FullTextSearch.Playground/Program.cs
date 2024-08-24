@@ -1,9 +1,6 @@
-﻿using System.Diagnostics;
-using ZoneTree.FullTextSearch.SearchEngines;
+﻿namespace ZoneTree.FullTextSearch.Playground;
 
-namespace ZoneTree.FullTextSearch.Playground;
-
-public class Program
+public sealed class Program
 {
     static void Main(string[] args)
     {

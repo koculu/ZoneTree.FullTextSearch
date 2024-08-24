@@ -3,7 +3,7 @@ using ZoneTree.FullTextSearch.UnitTests.sampleData;
 
 namespace ZoneTree.FullTextSearch.UnitTests;
 
-public class FacetTests
+public sealed class FacetTests
 {
     [Test]
     public void TestFacetSearch()

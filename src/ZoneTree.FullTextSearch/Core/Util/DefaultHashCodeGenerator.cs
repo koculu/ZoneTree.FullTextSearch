@@ -5,7 +5,7 @@
 /// The hash code is computed using a custom algorithm that is case-insensitive and 
 /// designed to work with both string and span-based inputs.
 /// </summary>
-public static class HashCodeGenerator
+public sealed class DefaultHashCodeGenerator : IHashCodeGenerator
 {
     /// <summary>
     /// Generates a hash code for the specified read-only span of characters using a custom algorithm.
@@ -13,7 +13,7 @@ public static class HashCodeGenerator
     /// </summary>
     /// <param name="text">The read-only span of characters to hash.</param>
     /// <returns>A 64-bit unsigned integer representing the hash code of the input span.</returns>
-    public static ulong GetHashCode(ReadOnlySpan<char> text)
+    public ulong GetHashCode(ReadOnlySpan<char> text)
     {
         if (text.IsWhiteSpace()) return 0;
         var hashedValue = 3074457345618258791ul;
@@ -32,7 +32,7 @@ public static class HashCodeGenerator
     /// </summary>
     /// <param name="text">The input string to hash.</param>
     /// <returns>A 64-bit unsigned integer representing the hash code of the input string.</returns>
-    public static ulong GetHashCode(string text)
+    public ulong GetHashCode(string text)
     {
         return GetHashCode(text.AsSpan());
     }
@@ -43,7 +43,7 @@ public static class HashCodeGenerator
     /// </summary>
     /// <param name="text">The read-only memory of characters to hash.</param>
     /// <returns>A 64-bit unsigned integer representing the hash code of the input memory.</returns>
-    public static ulong GetHashCode(ReadOnlyMemory<char> text)
+    public ulong GetHashCode(ReadOnlyMemory<char> text)
     {
         return GetHashCode(text.Span);
     }
