@@ -2,7 +2,7 @@ using Tenray.ZoneTree.Exceptions;
 
 namespace ZoneTree.FullTextSearch.UnitTests;
 
-public class RecordTableTests
+public sealed class RecordTableTests
 {
     [Test]
     public void UpsertRecord_ShouldInsertRecordAndValueIntoBothZoneTrees()

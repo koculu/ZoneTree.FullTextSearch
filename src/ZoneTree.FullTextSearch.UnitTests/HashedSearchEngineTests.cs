@@ -3,7 +3,7 @@ using ZoneTree.FullTextSearch.SearchEngines;
 
 namespace ZoneTree.FullTextSearch.UnitTests;
 
-public class HashedSearchEngineTests
+public sealed class HashedSearchEngineTests
 {
     [Test]
     public void AddRecord_ShouldAddRecordToIndex()

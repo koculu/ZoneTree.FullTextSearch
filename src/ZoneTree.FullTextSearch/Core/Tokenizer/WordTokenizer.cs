@@ -30,17 +30,28 @@ public sealed class WordTokenizer : IWordTokenizer
     HashSet<ulong> StopWords { get; } = new();
 
     /// <summary>
+    /// The hash code generator used to generate hash codes for tokens.
+    /// </summary>
+    readonly IHashCodeGenerator HashCodeGenerator;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="WordTokenizer"/> class with the specified
     /// minimum token length, an option to include digits, and an option to use stop words.
     /// </summary>
     /// <param name="mimimumTokenLength">The minimum length of tokens to include in the results. Must be non-negative.</param>
     /// <param name="includeDigits">Whether to include digits in the tokens. Defaults to false.</param>
     /// <param name="useStopWords">Whether to filter out stop words from the tokens. Defaults to false.</param>
+    /// <param name="hashCodeGenerator">The hash code generator used to generate hash codes for the tokens. If null, a default generator is used.</param>
     /// <exception cref="ArgumentException">Thrown when <paramref name="mimimumTokenLength"/> is negative.</exception>
-    public WordTokenizer(int mimimumTokenLength = 3, bool includeDigits = false, bool useStopWords = false)
+    public WordTokenizer(
+        int mimimumTokenLength = 3,
+        bool includeDigits = false,
+        bool useStopWords = false,
+        IHashCodeGenerator hashCodeGenerator = null)
     {
         if (mimimumTokenLength < 0)
             throw new ArgumentException($"{nameof(mimimumTokenLength)} can't be negative.");
+        HashCodeGenerator = hashCodeGenerator ?? new DefaultHashCodeGenerator();
         MimimumTokenLength = mimimumTokenLength;
         IncludeDigits = includeDigits;
         UseStopWords = useStopWords;

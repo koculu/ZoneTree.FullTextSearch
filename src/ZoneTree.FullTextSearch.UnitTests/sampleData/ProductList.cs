@@ -1,6 +1,6 @@
 ﻿namespace ZoneTree.FullTextSearch.UnitTests.sampleData;
 
-public class Product
+public sealed class Product
 {
     public long Id { get; set; }
     public string Name { get; set; }
@@ -17,7 +17,7 @@ public class Product
     }
 }
 
-public class Facets
+public sealed class Facets
 {
     public string Color { get; set; }
     public string Connectivity { get; set; }
