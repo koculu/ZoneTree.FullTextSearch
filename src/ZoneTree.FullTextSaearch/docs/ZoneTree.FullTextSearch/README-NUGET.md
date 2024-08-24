@@ -1,6 +1,7 @@
 # ZoneTree.FullTextSearch
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
+[![Downloads](https://img.shields.io/nuget/dt/ZoneTree.FullTextSearch)](https://www.nuget.org/packages/ZoneTree.FullTextSearch/)
 ![Platform](https://img.shields.io/badge/platform-.NET-blue.svg)
 ![Build](https://img.shields.io/badge/build-passing-brightgreen.svg)
 
@@ -93,6 +94,72 @@ To delete a record from the search engine:
 
 ```csharp
 searchEngine.DeleteRecord(1);
+```
+
+### Pagination
+
+In addition to basic searching, you can easily implement pagination using the `skip` and `limit` parameters in the `Search` method. This is especially useful when dealing with large datasets where you only want to display a subset of the results at a time.
+
+```csharp
+var resultsPage1 = searchEngine.Search(
+    search: "quick fox",
+    respectTokenOrder: true,
+    skip: 0, // Skip 0 records, start from the beginning
+    limit: 10 // Limit to 10 records in this page
+);
+
+var resultsPage2 = searchEngine.Search(
+    search: "quick fox",
+    respectTokenOrder: true,
+    skip: 10, // Skip the first 10 records
+    limit: 10 // Limit to 10 records in this page
+);
+```
+
+### Adding Facets
+
+To associate a facet (e.g., category, author) with a record:
+
+```csharp
+searchEngine.AddFacet(1, "category", "books");
+searchEngine.AddFacet(1, "author", "John Doe");
+```
+
+### Deleting Facets
+
+To remove a specific facet associated with a record:
+
+```csharp
+searchEngine.DeleteFacet(1, "category", "books");
+searchEngine.DeleteFacet(1, "author", "John Doe");
+```
+
+### Faceted Search
+
+If you're also filtering by facets, you can still apply pagination by specifying the `skip` and `limit` parameters:
+
+```csharp
+var facets = new Dictionary<string, string>
+{
+    { "category", "books" },
+    { "author", "John Doe" }
+};
+
+var paginatedFacetedResultsPage1 = searchEngine.Search(
+    search: "quick fox",
+    facets: facets,
+    respectTokenOrder: true,
+    skip: 0, // Start from the first matching record
+    limit: 10 // Retrieve up to 10 records
+);
+
+var paginatedFacetedResultsPage2 = searchEngine.Search(
+    search: "quick fox",
+    facets: facets,
+    respectTokenOrder: true,
+    skip: 10, // Skip the first 10 matching records
+    limit: 10 // Retrieve the next 10 records
+);
 ```
 
 ### Cleanup

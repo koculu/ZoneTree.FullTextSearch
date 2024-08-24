@@ -119,8 +119,8 @@ public sealed class RecordTable<TRecord, TValue> : IDisposable where TRecord : u
         ZoneTree1.IsReadOnly = true;
         ZoneTree2.IsReadOnly = true;
         isDropped = true;
-        ZoneTree1.Maintenance.DestroyTree();
-        ZoneTree2.Maintenance.DestroyTree();
+        ZoneTree1.Maintenance.Drop();
+        ZoneTree2.Maintenance.Drop();
         ZoneTree1.Dispose();
         ZoneTree2.Dispose();
     }

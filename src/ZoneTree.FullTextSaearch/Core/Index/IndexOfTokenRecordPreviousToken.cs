@@ -19,6 +19,12 @@ public sealed class IndexOfTokenRecordPreviousToken<TRecord, TToken>
     where TToken : unmanaged
 {
     /// <summary>
+    /// Gets or sets the facet previous token.
+    /// This property represents a token that precedes the current token in the context of facet-based searches.
+    /// </summary>
+    public TToken FacetPreviousToken { get; set; }
+
+    /// <summary>
     /// Gets the primary zone tree used to store and retrieve records by token and previous token.
     /// </summary>
     public readonly IZoneTree<
@@ -197,8 +203,8 @@ public sealed class IndexOfTokenRecordPreviousToken<TRecord, TToken>
         WaitForBackgroundThreads();
         isDropped = true;
         IsReadOnly = true;
-        ZoneTree1.Maintenance.DestroyTree();
-        ZoneTree2?.Maintenance.DestroyTree();
+        ZoneTree1.Maintenance.Drop();
+        ZoneTree2?.Maintenance.Drop();
         ZoneTree1.Dispose();
         ZoneTree2?.Dispose();
     }
@@ -225,6 +231,32 @@ public sealed class IndexOfTokenRecordPreviousToken<TRecord, TToken>
             Token = token,
         };
         ZoneTree2.TryAdd(key, new());
+    }
+
+    /// <summary>
+    /// Deletes a record from the primary zone tree, and optionally from the secondary zone tree if a secondary index is enabled.
+    /// </summary>
+    /// <param name="token">The token associated with the record to delete.</param>
+    /// <param name="record">The record to be deleted.</param>
+    /// <param name="previousToken">The token that precedes the current token in the record.</param>
+    public void DeleteRecord(TToken token, TRecord record, TToken previousToken)
+    {
+        ThrowIfIndexIsDropped();
+        ZoneTree1.ForceDelete(new CompositeKeyOfTokenRecordPrevious<TRecord, TToken>()
+        {
+            Token = token,
+            Record = record,
+            PreviousToken = previousToken
+        });
+
+        if (!useSecondaryIndex)
+            return;
+
+        ZoneTree2.ForceDelete(new CompositeKeyOfRecordToken<TRecord, TToken>()
+        {
+            Record = record,
+            Token = token,
+        });
     }
 
     /// <summary>
@@ -291,31 +323,61 @@ public sealed class IndexOfTokenRecordPreviousToken<TRecord, TToken>
     }
 
     /// <summary>
-    /// Searches for records that match the provided tokens, with optional parameters for token order,
-    /// skipping records, and limiting the number of results.
+    /// Searches the index for records that match the specified tokens, with optional support for facets, token order respect, and pagination.
     /// </summary>
-    /// <param name="tokens">The tokens to search for.</param>
-    /// <param name="firstLookAt">An optional token to prioritize during the search.</param>
-    /// <param name="respectTokenOrder">Indicates whether the order of tokens should be respected during the search.</param>
-    /// <param name="skip">The number of records to skip in the result set.</param>
-    /// <param name="limit">The maximum number of records to return.</param>
-    /// <returns>An array of records that match the search criteria.</returns>
+    /// <param name="tokens">
+    /// A read-only span of tokens that the records must contain. This parameter is mandatory unless facets are provided.
+    /// The tokens are logically grouped using "AND", meaning all tokens must be present in the matching records.
+    /// If both the tokens span and the facets span are empty, the result will be an empty array, as searching without tokens and facets is not supported.
+    /// Tokens can be empty if facets are provided; in this case, the search will be based solely on the facets.
+    /// To retrieve records without specific search tokens or facets, consider fetching them from the actual record source instead of using the search index.
+    /// </param>
+    /// <param name="firstLookAt">
+    /// An optional token that the search will prioritize when searching. 
+    /// If not specified, the first token in the tokens span is used.
+    /// </param>
+    /// <param name="respectTokenOrder">
+    /// A boolean indicating whether the search should respect the order of tokens in the record.
+    /// If true, the records must contain the tokens in the specified order.
+    /// </param>
+    /// <param name="facets">
+    /// An optional read-only span of tokens that can be used to filter the search results.
+    /// If any facets are provided, records must contain at least one of these facet tokens to be included in the results.
+    /// If the span is empty or not provided, no facet filtering is applied, and all matching records are returned regardless of facet values.
+    /// </param>
+    /// <param name="skip">
+    /// The number of matching records to skip in the result set, useful for pagination.
+    /// Defaults to 0.
+    /// </param>
+    /// <param name="limit">
+    /// The maximum number of records to return, useful for limiting the result set size.
+    /// Defaults to 0, which indicates no limit.
+    /// </param>
+    /// <returns>
+    /// An array of records that match the specified tokens and facets, respecting the token order if specified.
+    /// The array may be empty if no matching records are found.
+    /// </returns>
     public TRecord[] Search(
         ReadOnlySpan<TToken> tokens,
         TToken? firstLookAt = null,
         bool respectTokenOrder = true,
+        ReadOnlySpan<TToken> facets = default,
         int skip = 0,
         int limit = 0)
     {
         return searchAlgorithm
-            .Search(tokens, firstLookAt, respectTokenOrder, skip, limit);
+            .Search(tokens, firstLookAt, respectTokenOrder, facets, skip, limit);
     }
+
+    bool isDisposed = false;
 
     /// <summary>
     /// Disposes the resources used by the index.
     /// </summary>
     public void Dispose()
     {
+        if (isDisposed) return;
+        isDisposed = true;
         Maintainer1.WaitForBackgroundThreads();
         Maintainer1.Dispose();
         ZoneTree1.Dispose();

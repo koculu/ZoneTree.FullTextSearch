@@ -10,9 +10,9 @@ public sealed class SearchEngineApp : IDisposable
 {
     readonly string DataPath = "data";
 
-    readonly string DefaultIndexPath = @"D:\code\";
+    public readonly string DefaultIndexPath = @"D:\code\modern";
 
-    readonly string DefaultPattern = "*.cs";
+    public readonly string DefaultFilePattern = "*.cs";
 
     readonly bool UseSecondaryIndex = false;
 
@@ -57,8 +57,9 @@ public sealed class SearchEngineApp : IDisposable
                 switch (input)
                 {
                     case "1":
-                        CreateIndex();
-                        break;
+                        var o = ConfigureIndex();
+                        CreateIndex(o.indexPath, o.pattern, true);
+                        return;
                     case "2":
                         Search();
                         break;
@@ -66,7 +67,7 @@ public sealed class SearchEngineApp : IDisposable
                         ShowStats();
                         break;
                     case "4":
-                        DropIndex();
+                        DropIndex(true);
                         return;
                     case "5":
                         CollectGC();
@@ -134,12 +135,15 @@ public sealed class SearchEngineApp : IDisposable
         Console.ReadKey();
     }
 
-    void DropIndex()
+    public void DropIndex(bool isInteractive)
     {
         RecordTable.Drop();
         SearchEngine.Drop();
-        Console.WriteLine("Dropped the index. Press any key to continue...");
-        Console.ReadKey();
+        if (isInteractive)
+        {
+            Console.WriteLine("Dropped the index. Press any key to continue...");
+            Console.ReadKey();
+        }
     }
 
     void ShowStats()
@@ -175,16 +179,20 @@ public sealed class SearchEngineApp : IDisposable
         PressAnyKeyToContinue();
     }
 
-    void CreateIndex()
+    public (string indexPath, string pattern) ConfigureIndex()
     {
         Console.WriteLine($"Enter path to index (default: {DefaultIndexPath}):");
         var indexPath = Console.ReadLine();
         if (string.IsNullOrEmpty(indexPath)) indexPath = DefaultIndexPath;
         Console.WriteLine("Index path:" + indexPath);
-        Console.WriteLine($"Enter pattern to index (default: {DefaultPattern}):");
+        Console.WriteLine($"Enter pattern to index (default: {DefaultFilePattern}):");
         var pattern = Console.ReadLine();
-        if (string.IsNullOrEmpty(pattern)) pattern = DefaultPattern;
+        if (string.IsNullOrEmpty(pattern)) pattern = DefaultFilePattern;
+        return (indexPath, pattern);
+    }
 
+    public void CreateIndex(string indexPath, string pattern, bool isInteractive)
+    {
         var sw = Stopwatch.StartNew();
         var folderIterator = new FolderIterator(indexPath, pattern, true);
         var nextRecord = RecordTable.GetLastRecord() ?? 1;
@@ -229,16 +237,19 @@ public sealed class SearchEngineApp : IDisposable
             Console.WriteLine("Waiting for background threads...");
             SearchEngine.Index.WaitForBackgroundThreads();
             Console.WriteLine("Merging completed in: " + sw.ElapsedMilliseconds + " ms");
-            if (cancellationTokenSource.IsCancellationRequested)
+            if (cancellationTokenSource.IsCancellationRequested && isInteractive)
             {
                 Console.WriteLine("Press any key to return to the main menu...");
                 Console.ReadKey();
             }
         });
         Console.WriteLine("Creating the index...");
-        Console.WriteLine("Press any key to quit the index creation...");
-        Console.ReadKey();
-        cancellationTokenSource.Cancel();
+        if (isInteractive)
+        {
+            Console.WriteLine("Press any key to quit the index creation...");
+            Console.ReadKey();
+            cancellationTokenSource.Cancel();
+        }
         task.Wait();
     }
 
@@ -260,7 +271,7 @@ public sealed class SearchEngineApp : IDisposable
             }
 
             var sw = Stopwatch.StartNew();
-            var result = SearchEngine.Search(text, true, 0, 0);
+            var result = SearchEngine.Search(text, true, 0, 5);
             var elapsed = sw.ElapsedMilliseconds;
             Console.WriteLine($"Found {result.Length} records in {elapsed} ms.");
 
