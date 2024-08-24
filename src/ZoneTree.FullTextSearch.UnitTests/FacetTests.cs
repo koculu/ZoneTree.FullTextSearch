@@ -1,4 +1,4 @@
-﻿using ZoneTree.FullTextSaearch.SearchEngines;
+﻿using ZoneTree.FullTextSearch.SearchEngines;
 using ZoneTree.FullTextSearch.UnitTests.sampleData;
 
 namespace ZoneTree.FullTextSearch.UnitTests;

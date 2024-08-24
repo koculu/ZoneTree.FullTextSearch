@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using ZoneTree.FullTextSaearch.SearchEngines;
+using ZoneTree.FullTextSearch.SearchEngines;
 
 namespace ZoneTree.FullTextSearch.Playground;
 

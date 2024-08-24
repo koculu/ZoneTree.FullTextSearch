@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ZoneTree.FullTextSaearch\ZoneTree.FullTextSaearch.csproj" />
+    <ProjectReference Include="..\ZoneTree.FullTextSearch\ZoneTree.FullTextSearch.csproj" />
   </ItemGroup>
 
   <ItemGroup>

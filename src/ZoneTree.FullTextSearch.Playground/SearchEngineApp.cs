@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Runtime;
-using ZoneTree.FullTextSaearch.SearchEngines;
+using ZoneTree.FullTextSearch.SearchEngines;
 using ZoneTree.FullTextSearch.Core.Tokenizer;
 using ZoneTree.FullTextSearch.Core.Util;
 

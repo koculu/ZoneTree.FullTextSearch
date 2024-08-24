@@ -7,7 +7,7 @@ using ZoneTree.FullTextSearch.Core;
 using ZoneTree.FullTextSearch.Core.Index;
 using ZoneTree.FullTextSearch.Core.Tokenizer;
 
-namespace ZoneTree.FullTextSaearch.SearchEngines;
+namespace ZoneTree.FullTextSearch.SearchEngines;
 
 /// <summary>
 /// Represents a search engine that uses hashed tokens for fast searching and retrieval of records.

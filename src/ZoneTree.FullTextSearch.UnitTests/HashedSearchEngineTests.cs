@@ -1,5 +1,5 @@
 using Tenray.ZoneTree.Exceptions;
-using ZoneTree.FullTextSaearch.SearchEngines;
+using ZoneTree.FullTextSearch.SearchEngines;
 
 namespace ZoneTree.FullTextSearch.UnitTests;
 
