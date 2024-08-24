@@ -199,6 +199,75 @@ var searchEngine = new HashedSearchEngine<int>(
 );
 ```
 
+### Stemming using a Custom Hash Generator
+
+1. **Stemming Integration**: In the custom hash generator, you can integrate a stemming library to reduce each word to its stem before hashing.
+2. **Stemming Libraries**: You can use any existing .NET stemming library, such as **PorterStemmer** or **SnowballStemmer**, within your custom hash generator to perform the stemming process.
+
+### Example Custom Hash Generator with Stemming
+
+Here’s a conceptual example of how you could implement a custom hash generator that incorporates stemming:
+
+```csharp
+public sealed class StemmingHashCodeGenerator : IHashCodeGenerator
+{
+    private readonly IStemmer Stemmer;
+
+    public StemmingHashCodeGenerator(IStemmer stemmer)
+    {
+        Stemmer = stemmer;
+    }
+
+    public ulong GetHashCode(ReadOnlySpan<char> text)
+    {
+        return GetHashCode(text.ToString());
+    }
+
+    public ulong GetHashCode(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return 0;
+        var stemmedWord = Stemmer.Stem(text); // Apply stemming
+        return ComputeHash(stemmedWord.AsSpan());
+    }
+
+    public ulong GetHashCode(ReadOnlyMemory<char> text)
+    {
+        return GetHashCode(text.Span);
+    }
+
+    ulong ComputeHash(ReadOnlySpan<char> text)
+    {
+        if (text.IsWhiteSpace()) return 0;
+        var hashedValue = 3074457345618258791ul;
+        for (var i = 0; i < text.Length; i++)
+        {
+            hashedValue += char.ToLowerInvariant(text[i]);
+            hashedValue *= 3074457345618258799ul;
+        }
+        return hashedValue;
+    }
+}
+```
+
+### Using a Stemming Library
+
+You can use a stemming library in the custom hash generator like this:
+
+```csharp
+// Example of using a stemming library (like PorterStemmer)
+var stemmer = new PorterStemmer(); // Assuming this is a class from the stemming library
+var hashCodeGenerator = new StemmingHashCodeGenerator(stemmer);
+
+var searchEngine = new HashedSearchEngine<int>(
+    hashCodeGenerator: hashCodeGenerator
+);
+```
+
+### Benefits
+
+- **Improved Search Accuracy**: By stemming words, the search engine can match related terms more effectively, ensuring that different forms of a word (e.g., "run," "running," "ran") are all indexed under the same root form.
+- **Flexibility**: You can swap out the stemming algorithm easily by using a different stemming library or custom implementation, depending on the specific language or domain requirements.
+
 ## Using RecordTable for Dual-Key Storage
 
 The `RecordTable` class in ZoneTree.FullTextSearch provides a powerful dual-key storage solution where both keys can act as a lookup for the other. This is particularly useful for scenarios where you need to efficiently manage and query data based on two different keys.
