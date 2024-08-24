@@ -25,16 +25,23 @@ ZoneTree.FullTextSearch is designed for high performance, ensuring that even lar
 | **Token Count**                  | 27,869,351                             |
 | **Record Count**                 | 103,499                                |
 | **Index Creation Time**          | 54,814 ms (approximately 54.8 seconds) |
-| **Query (matching 90K records)** | 325 ms                                 |
-| **Query (matching 11 records)**  | 16 ms                                  |
+| **Query (matching 90K records)** | 325 ms (fetching 90K records from disk)                                 |
+| **Query (matching 11 records)**  | 16 ms (fetching 11 records from disk)                                  |
+| **Query (matching 11 records)**  | ~0 ms (warmed-up queries)          
 
 **Indexing Performance:**  
 The library successfully indexed 27.8 million tokens across 103,499 records in just under 55 seconds, highlighting its efficiency in handling large datasets.
 
 **Query Performance:**
 
-- A complex query that matched 90,000 records was completed in just 325 milliseconds.
-- A more specific query matching 11 records was resolved in only 16 milliseconds.
+- A complex query that matched 90,000 records was completed in just 325 milliseconds, which includes the time taken to fetch the record IDs from disk storage.
+- A more specific query matching 11 records was resolved in only 16 milliseconds, which includes the time taken to fetch the record IDs from disk storage.
+
+**In-Memory Caching:**
+
+ZoneTree's in-memory cache significantly enhances query performance. Once records are loaded into memory, subsequent queries on the same disk segment can be executed in less than a millisecond. This caching mechanism ensures that repeated access to the same data is nearly instantaneous, making the system highly responsive, even under heavy query loads.
+
+**Conclusion:**
 
 These results illustrate that ZoneTree.FullTextSearch provides quick response times, even with extensive data, making it suitable for applications requiring both scalability and speed. Whether you're dealing with vast amounts of text data or need rapid search capabilities, this library offers the performance necessary for demanding environments.
 
