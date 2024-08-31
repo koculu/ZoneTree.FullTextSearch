@@ -504,7 +504,7 @@ Ensure to dispose of the `RecordTable` properly to close any open resources:
 recordTable.Dispose();
 ```
 
-### Example Scenario
+#### Example Scenario
 
 Imagine a scenario where you're storing user profiles where the `TRecord` is a unique user ID and the `TValue` is the user's email. With `RecordTable`, you can quickly find the user ID by email or retrieve the user's email by their ID, all while ensuring data consistency between the two ZoneTrees.
 
@@ -530,15 +530,15 @@ if (userTable.TryGetRecord("user102@example.com", out var userId))
 
 This dual-key approach greatly simplifies scenarios where data needs to be accessed and managed from multiple perspectives.
 
-### NormalizableHashCodeGenerator and DiacriticNormalizer
+## NormalizableHashCodeGenerator and DiacriticNormalizer
 
-#### Overview
+### Overview
 
 The `NormalizableHashCodeGenerator` provides a flexible way to generate hash codes for text, allowing you to control case sensitivity and apply custom character normalization before hashing. The `DiacriticNormalizer` is one such normalizer that can strip diacritical marks (accents) from characters, converting them to their base forms. These features are particularly useful when you need to perform searches that should be insensitive to accents or case differences.
 
-#### Example Usage
+### Example Usage
 
-##### Setting Up the Search Engine with Normalization
+#### Setting Up the Search Engine with Normalization
 
 To create a search engine that normalizes diacritical marks and is case-insensitive, you can use the `NormalizableHashCodeGenerator` with the `DiacriticNormalizer`:
 
@@ -566,7 +566,7 @@ searchEngine.AddRecord(3, "Jalapeño peppers are spicy.");
 
 In this example, the `DiacriticNormalizer` will convert characters like `é` to `e`, `ü` to `u`, and so on. The search engine will also treat text in a case-insensitive manner, so both "Crème" and "creme" will be treated the same.
 
-##### Searching with Normalization
+#### Searching with Normalization
 
 With the normalization setup, you can perform searches that are insensitive to case and diacritics:
 
@@ -577,7 +577,7 @@ var results = searchEngine.Search("creme brulee");
 
 This query will return results containing "Crème brûlée" despite the absence of accents in the search query.
 
-##### Customizing the Normalizer
+#### Customizing the Normalizer
 
 You can customize the `DiacriticNormalizer` by providing your own character mappings or specifying characters to exclude from normalization:
 
@@ -609,7 +609,7 @@ customSearchEngine.AddRecord(2, "Café");
 
 In this setup, the custom normalizer will apply the specified mappings, but characters like `ç` will be excluded from normalization, preserving their original form.
 
-### Playground Console App
+## Playground Console App
 
 The Playground Console App for ZoneTree.FullTextSearch provides an interactive environment to experiment with the library's capabilities. It allows developers to:
 
@@ -622,10 +622,6 @@ This app serves as a valuable tool for both new users looking to learn how the l
 ## Contributing
 
 Contributions to ZoneTree.FullTextSearch are welcome! Please submit pull requests or issues through the GitHub repository.
-
-## Roadmap
-
-Future Search Engines: Additional search engines, such as Phrase Search Engine and Proximity Search Engine, are planned for future releases.
 
 ## License
 
