@@ -31,27 +31,27 @@ public sealed class FacetTests
             }
         }
 
-        var result = searchEngine.Search("wireless", new Dictionary<string, string>
+        var result = searchEngine.SimpleSearch("wireless", new Dictionary<string, string>
         {
             { "connectivity", "bluetooth"}
         });
         Assert.That(result, Has.Length.EqualTo(1));
         Assert.That(result[0], Is.EqualTo(1));
 
-        result = searchEngine.Search("wireless", new Dictionary<string, string>());
+        result = searchEngine.SimpleSearch("wireless", new Dictionary<string, string>());
         Assert.That(result, Has.Length.EqualTo(1));
 
-        result = searchEngine.Search("home", new Dictionary<string, string>());
+        result = searchEngine.SimpleSearch("home", new Dictionary<string, string>());
         Assert.That(result, Has.Length.EqualTo(3));
 
-        result = searchEngine.Search("home", new Dictionary<string, string>
+        result = searchEngine.SimpleSearch("home", new Dictionary<string, string>
         {
             { "Resolution", "4K UHD"},
             { "EnergyEfficiency", "A+"},
         });
         Assert.That(result, Has.Length.EqualTo(2));
 
-        result = searchEngine.Search("product", new Dictionary<string, string>
+        result = searchEngine.SimpleSearch("product", new Dictionary<string, string>
         {
             { "Resolution", "4K UHD"},
             { "EnergyEfficiency", "A+"},
@@ -61,7 +61,7 @@ public sealed class FacetTests
 
         Assert.That(result, Has.Length.EqualTo(4));
 
-        result = searchEngine.Search("", new Dictionary<string, string>
+        result = searchEngine.SimpleSearch("", new Dictionary<string, string>
         {
             { "Resolution", "4K UHD"},
             { "EnergyEfficiency", "A+"},
@@ -72,13 +72,13 @@ public sealed class FacetTests
         Assert.That(result, Has.Length.EqualTo(4));
 
         // Returning all records without providing any criteria is not supported.
-        result = searchEngine.Search(null, new Dictionary<string, string>());
+        result = searchEngine.SimpleSearch(null, new Dictionary<string, string>());
         Assert.That(result, Is.Empty);
 
-        result = searchEngine.Search("", new Dictionary<string, string>());
+        result = searchEngine.SimpleSearch("", new Dictionary<string, string>());
         Assert.That(result, Is.Empty);
 
-        result = searchEngine.Search("");
+        result = searchEngine.SimpleSearch("");
         Assert.That(result, Is.Empty);
     }
 }
