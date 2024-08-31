@@ -42,10 +42,12 @@ public sealed class RecordTable<TRecord, TValue> : IDisposable where TRecord : u
     /// <param name="dataPath">The base directory path where the data of both ZoneTrees will be stored.</param>
     /// <param name="factory1">Optional configuration action for the first ZoneTree factory.</param>
     /// <param name="factory2">Optional configuration action for the second ZoneTree factory.</param>
+    /// <param name="blockCacheLifeTimeInMilliseconds">Defines the life time of cached blocks. Default is 1 minute.</param>
     public RecordTable(
         string dataPath = "data",
         Action<ZoneTreeFactory<TRecord, TValue>> factory1 = null,
-        Action<ZoneTreeFactory<TValue, TRecord>> factory2 = null)
+        Action<ZoneTreeFactory<TValue, TRecord>> factory2 = null,
+        long blockCacheLifeTimeInMilliseconds = 60_000)
     {
         var f1 = new ZoneTreeFactory<TRecord, TValue>()
             .SetDataDirectory($"{dataPath}/rectable1");
@@ -58,6 +60,13 @@ public sealed class RecordTable<TRecord, TValue> : IDisposable where TRecord : u
 
         Maintainer1 = ZoneTree1.CreateMaintainer();
         Maintainer2 = ZoneTree2.CreateMaintainer();
+
+        Maintainer1.InactiveBlockCacheCleanupInterval = TimeSpan.FromSeconds(30);
+        Maintainer2.InactiveBlockCacheCleanupInterval = TimeSpan.FromSeconds(30);
+
+        Maintainer1.DiskSegmentBufferLifeTime = blockCacheLifeTimeInMilliseconds;
+        Maintainer2.DiskSegmentBufferLifeTime = blockCacheLifeTimeInMilliseconds;
+
         Maintainer1.EnableJobForCleaningInactiveCaches = true;
         Maintainer2.EnableJobForCleaningInactiveCaches = true;
     }

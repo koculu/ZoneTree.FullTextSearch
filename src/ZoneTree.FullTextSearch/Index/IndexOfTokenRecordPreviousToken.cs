@@ -1,11 +1,13 @@
-﻿using Tenray.ZoneTree;
+﻿using System.Threading;
+using Tenray.ZoneTree;
 using Tenray.ZoneTree.Comparers;
 using Tenray.ZoneTree.PresetTypes;
 using Tenray.ZoneTree.Serializers;
-using ZoneTree.FullTextSearch.Core.Model;
-using ZoneTree.FullTextSearch.Core.Search;
+using ZoneTree.FullTextSearch.Model;
+using ZoneTree.FullTextSearch.QueryLanguage;
+using ZoneTree.FullTextSearch.Search;
 
-namespace ZoneTree.FullTextSearch.Core.Index;
+namespace ZoneTree.FullTextSearch.Index;
 
 /// <summary>
 /// Represents an index structure for managing records associated with hashed tokens,
@@ -18,12 +20,6 @@ public sealed class IndexOfTokenRecordPreviousToken<TRecord, TToken>
     where TRecord : unmanaged
     where TToken : unmanaged
 {
-    /// <summary>
-    /// Gets or sets the facet previous token.
-    /// This property represents a token that precedes the current token in the context of facet-based searches.
-    /// </summary>
-    public TToken FacetPreviousToken { get; set; }
-
     /// <summary>
     /// Gets the primary zone tree used to store and retrieve records by token and previous token.
     /// </summary>
@@ -81,6 +77,9 @@ public sealed class IndexOfTokenRecordPreviousToken<TRecord, TToken>
     readonly SearchOnIndexOfTokenRecordPreviousToken<TRecord, TToken>
         searchAlgorithm;
 
+    readonly AdvancedSearchOnIndexOfTokenRecordPreviousToken<TRecord, TToken>
+        advancedSearchAlgorithm;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="IndexOfTokenRecordPreviousToken{TRecord, TToken}"/> class,
     /// with the option to configure primary and secondary zone trees.
@@ -91,6 +90,7 @@ public sealed class IndexOfTokenRecordPreviousToken<TRecord, TToken>
     /// <param name="dataPath">The path to the data storage, defaulting to "data".</param>
     /// <param name="configure1">Optional configuration action for the primary zone tree.</param>
     /// <param name="configure2">Optional configuration action for the secondary zone tree.</param>
+    /// <param name="blockCacheLifeTimeInMilliseconds">Defines the life time of cached blocks. Default is 1 minute.</param>
     public IndexOfTokenRecordPreviousToken(
         string dataPath = "data",
         IRefComparer<TRecord> recordComparer = null,
@@ -103,7 +103,8 @@ public sealed class IndexOfTokenRecordPreviousToken<TRecord, TToken>
         Action<
             ZoneTreeFactory<
                 CompositeKeyOfRecordToken<TRecord, TToken>,
-                byte>> configure2 = null)
+                byte>> configure2 = null,
+        long blockCacheLifeTimeInMilliseconds = 60_000)
     {
         if (recordComparer == null)
             recordComparer = ComponentsForKnownTypes.GetComparer<TRecord>();
@@ -123,6 +124,8 @@ public sealed class IndexOfTokenRecordPreviousToken<TRecord, TToken>
 
         ZoneTree1 = factory1.OpenOrCreate();
         Maintainer1 = ZoneTree1.CreateMaintainer();
+        Maintainer1.InactiveBlockCacheCleanupInterval = TimeSpan.FromSeconds(30);
+        Maintainer1.DiskSegmentBufferLifeTime = blockCacheLifeTimeInMilliseconds;
         Maintainer1.EnableJobForCleaningInactiveCaches = true;
         RecordComparer = recordComparer;
         TokenComparer = tokenComparer;
@@ -143,10 +146,12 @@ public sealed class IndexOfTokenRecordPreviousToken<TRecord, TToken>
 
             ZoneTree2 = factory2.OpenOrCreate();
             Maintainer2 = ZoneTree2.CreateMaintainer();
+            Maintainer2.InactiveBlockCacheCleanupInterval = TimeSpan.FromSeconds(30);
+            Maintainer2.DiskSegmentBufferLifeTime = blockCacheLifeTimeInMilliseconds;
             Maintainer2.EnableJobForCleaningInactiveCaches = true;
         }
-        searchAlgorithm = new
-            SearchOnIndexOfTokenRecordPreviousToken<TRecord, TToken>(this);
+        searchAlgorithm = new(this);
+        advancedSearchAlgorithm = new(this);
     }
 
     /// <summary>
@@ -266,7 +271,9 @@ public sealed class IndexOfTokenRecordPreviousToken<TRecord, TToken>
     /// <returns>The number of entries deleted.</returns>
     long DeleteRecordWithoutInvertedIndex(TRecord record)
     {
-        using var iterator1 = ZoneTree1.CreateIterator(IteratorType.NoRefresh);
+        using var iterator1 = ZoneTree1.CreateIterator(
+            IteratorType.NoRefresh,
+            contributeToTheBlockCache: false);
         var deletedEntries = 0L;
         var recordComparer = RecordComparer;
         while (iterator1.Next())
@@ -288,8 +295,12 @@ public sealed class IndexOfTokenRecordPreviousToken<TRecord, TToken>
     {
         ThrowIfIndexIsDropped();
         if (!useSecondaryIndex) return DeleteRecordWithoutInvertedIndex(record);
-        using var iterator1 = ZoneTree1.CreateIterator(IteratorType.NoRefresh);
-        using var iterator2 = ZoneTree2.CreateIterator(IteratorType.NoRefresh);
+        using var iterator1 = ZoneTree1.CreateIterator(
+            IteratorType.NoRefresh,
+            contributeToTheBlockCache: false);
+        using var iterator2 = ZoneTree2.CreateIterator(
+            IteratorType.NoRefresh,
+            contributeToTheBlockCache: false);
         iterator2.Seek(new()
         {
             Record = record
@@ -353,20 +364,39 @@ public sealed class IndexOfTokenRecordPreviousToken<TRecord, TToken>
     /// The maximum number of records to return, useful for limiting the result set size.
     /// Defaults to 0, which indicates no limit.
     /// </param>
+    /// <param name="cancellationToken">
+    /// A token to monitor for cancellation requests. This allows the search operation to be canceled if necessary.
+    /// </param>
     /// <returns>
     /// An array of records that match the specified tokens and facets, respecting the token order if specified.
     /// The array may be empty if no matching records are found.
     /// </returns>
-    public TRecord[] Search(
+    public TRecord[] SimpleSearch(
         ReadOnlySpan<TToken> tokens,
         TToken? firstLookAt = null,
         bool respectTokenOrder = true,
         ReadOnlySpan<TToken> facets = default,
         int skip = 0,
-        int limit = 0)
+        int limit = 0,
+        CancellationToken cancellationToken = default)
     {
         return searchAlgorithm
-            .Search(tokens, firstLookAt, respectTokenOrder, facets, skip, limit);
+            .Search(tokens, firstLookAt, respectTokenOrder, facets, skip, limit, cancellationToken);
+    }
+
+    /// <summary>
+    /// Performs a search based on the specified query and returns the matching records.
+    /// </summary>
+    /// <param name="query">The search query to execute.</param>
+    /// <param name="cancellationToken">
+    /// A token to monitor for cancellation requests. This allows the search operation to be canceled if necessary.
+    /// </param>
+    /// <returns>An array of records that match the search criteria.</returns>
+    public TRecord[] Search(
+        SearchQuery<TToken> query,
+        CancellationToken cancellationToken = default)
+    {
+        return advancedSearchAlgorithm.Search(query, cancellationToken);
     }
 
     bool isDisposed = false;

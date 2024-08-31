@@ -10,8 +10,7 @@ namespace ZoneTree.FullTextSearch;
 /// <typeparam name="TRecord">The type of the record component of the key. Must be an unmanaged type.</typeparam>
 /// <typeparam name="TToken">The type of the token components of the key. Must be an unmanaged type.</typeparam>
 [StructLayout(LayoutKind.Sequential)]
-public struct CompositeKeyOfTokenRecordPrevious<TRecord, TToken>
-    where TRecord : unmanaged
+public struct CompositeKeyOfTokenRecordPrevious<TRecord, TToken> : IEquatable<CompositeKeyOfTokenRecordPrevious<TRecord, TToken>> where TRecord : unmanaged
     where TToken : unmanaged
 {
     /// <summary>
@@ -31,4 +30,31 @@ public struct CompositeKeyOfTokenRecordPrevious<TRecord, TToken>
     /// that immediately precedes the current token in the sequence, providing context for token order.
     /// </summary>
     public TToken PreviousToken;
+
+    public override bool Equals(object obj)
+    {
+        return obj is CompositeKeyOfTokenRecordPrevious<TRecord, TToken> previous && Equals(previous);
+    }
+
+    public bool Equals(CompositeKeyOfTokenRecordPrevious<TRecord, TToken> other)
+    {
+        return EqualityComparer<TToken>.Default.Equals(Token, other.Token) &&
+               EqualityComparer<TRecord>.Default.Equals(Record, other.Record) &&
+               EqualityComparer<TToken>.Default.Equals(PreviousToken, other.PreviousToken);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Token, Record, PreviousToken);
+    }
+
+    public static bool operator ==(CompositeKeyOfTokenRecordPrevious<TRecord, TToken> left, CompositeKeyOfTokenRecordPrevious<TRecord, TToken> right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(CompositeKeyOfTokenRecordPrevious<TRecord, TToken> left, CompositeKeyOfTokenRecordPrevious<TRecord, TToken> right)
+    {
+        return !(left == right);
+    }
 }

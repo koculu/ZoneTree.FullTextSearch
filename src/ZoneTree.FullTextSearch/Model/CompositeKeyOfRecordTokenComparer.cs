@@ -1,15 +1,15 @@
 ﻿using Tenray.ZoneTree.Comparers;
 
-namespace ZoneTree.FullTextSearch.Core.Model;
+namespace ZoneTree.FullTextSearch.Model;
 
 /// <summary>
-/// Provides a comparer for instances of <see cref="CompositeKeyOfTokenRecordPrevious{TRecord, TToken}"/>.
-/// The comparer evaluates composite keys based on their token, record, and previous token components, in that order.
+/// A comparer for comparing instances of <see cref="CompositeKeyOfRecordToken{TRecord, TToken}"/>.
+/// This comparer compares composite keys based on their record and token components.
 /// </summary>
 /// <typeparam name="TRecord">The type of the record component of the composite key. Must be an unmanaged type.</typeparam>
 /// <typeparam name="TToken">The type of the token component of the composite key. Must be an unmanaged type.</typeparam>
-public sealed class CompositeKeyOfTokenRecordPreviousComparer<TRecord, TToken>
-    : IRefComparer<CompositeKeyOfTokenRecordPrevious<TRecord, TToken>>
+public sealed class CompositeKeyOfRecordTokenComparer<TRecord, TToken>
+    : IRefComparer<CompositeKeyOfRecordToken<TRecord, TToken>>
     where TRecord : unmanaged
     where TToken : unmanaged
 {
@@ -24,12 +24,11 @@ public sealed class CompositeKeyOfTokenRecordPreviousComparer<TRecord, TToken>
     public IRefComparer<TToken> TokenComparer { get; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CompositeKeyOfTokenRecordPreviousComparer{TRecord, TToken}"/> class
-    /// with the specified comparers for the record and token components.
+    /// Initializes a new instance of the <see cref="CompositeKeyOfRecordTokenComparer{TRecord, TToken}"/> class.
     /// </summary>
     /// <param name="recordComparer">The comparer to use for comparing the record components.</param>
     /// <param name="tokenComparer">The comparer to use for comparing the token components.</param>
-    public CompositeKeyOfTokenRecordPreviousComparer(
+    public CompositeKeyOfRecordTokenComparer(
         IRefComparer<TRecord> recordComparer,
         IRefComparer<TToken> tokenComparer)
     {
@@ -38,9 +37,9 @@ public sealed class CompositeKeyOfTokenRecordPreviousComparer<TRecord, TToken>
     }
 
     /// <summary>
-    /// Compares two <see cref="CompositeKeyOfTokenRecordPrevious{TRecord, TToken}"/> instances.
-    /// The comparison is performed first on the token components, then on the record components if the tokens are equal,
-    /// and finally on the previous token components if both the tokens and records are equal.
+    /// Compares two <see cref="CompositeKeyOfRecordToken{TRecord, TToken}"/> instances.
+    /// First, it compares the record components using <see cref="RecordComparer"/>.
+    /// If the records are equal, it then compares the token components using <see cref="TokenComparer"/>.
     /// </summary>
     /// <param name="x">The first composite key to compare.</param>
     /// <param name="y">The second composite key to compare.</param>
@@ -53,18 +52,13 @@ public sealed class CompositeKeyOfTokenRecordPreviousComparer<TRecord, TToken>
     /// </list>
     /// </returns>
     public int Compare(
-        in CompositeKeyOfTokenRecordPrevious<TRecord, TToken> x,
-        in CompositeKeyOfTokenRecordPrevious<TRecord, TToken> y)
+        in CompositeKeyOfRecordToken<TRecord, TToken> x,
+        in CompositeKeyOfRecordToken<TRecord, TToken> y)
     {
-        var tokenComparer = TokenComparer;
-        var hx = x.Token;
-        var hy = y.Token;
-        var hc = tokenComparer.Compare(hx, hy);
-        if (hc != 0) return hc;
         var rc = RecordComparer.Compare(x.Record, y.Record);
         if (rc != 0) return rc;
-        var px = x.PreviousToken;
-        var py = y.PreviousToken;
-        return tokenComparer.Compare(px, py);
+        var hx = x.Token;
+        var hy = y.Token;
+        return TokenComparer.Compare(hx, hy);
     }
 }

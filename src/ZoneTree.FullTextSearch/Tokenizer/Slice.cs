@@ -1,4 +1,4 @@
-﻿namespace ZoneTree.FullTextSearch.Core.Tokenizer;
+﻿namespace ZoneTree.FullTextSearch.Tokenizer;
 
 /// <summary>
 /// Represents a slice of text with a specified offset and length. 

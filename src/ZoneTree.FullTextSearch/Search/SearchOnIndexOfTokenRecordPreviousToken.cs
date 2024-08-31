@@ -1,7 +1,8 @@
-﻿using Tenray.ZoneTree.Comparers;
-using ZoneTree.FullTextSearch.Core.Index;
+﻿using Tenray.ZoneTree;
+using Tenray.ZoneTree.Comparers;
+using ZoneTree.FullTextSearch.Index;
 
-namespace ZoneTree.FullTextSearch.Core.Search;
+namespace ZoneTree.FullTextSearch.Search;
 
 /// <summary>
 /// Provides a search algorithm for the <see cref="IndexOfTokenRecordPreviousToken{TRecord, TToken}"/> class.
@@ -60,6 +61,9 @@ public sealed class SearchOnIndexOfTokenRecordPreviousToken<TRecord, TToken>
     /// The maximum number of records to return, useful for limiting the result set size.
     /// Defaults to 0, which indicates no limit.
     /// </param>
+    /// <param name="cancellationToken">
+    /// A token to monitor for cancellation requests. This allows the search operation to be canceled if necessary.
+    /// </param>
     /// <returns>
     /// An array of records that match the specified tokens and facets, respecting the token order if specified.
     /// The array may be empty if no matching records are found.
@@ -77,7 +81,8 @@ public sealed class SearchOnIndexOfTokenRecordPreviousToken<TRecord, TToken>
         bool respectTokenOrder = true,
         ReadOnlySpan<TToken> facets = default,
         int skip = 0,
-        int limit = 0)
+        int limit = 0,
+        CancellationToken cancellationToken = default)
     {
         Index.ThrowIfIndexIsDropped();
         if (tokens.Length == 0 && facets.Length == 0)
@@ -86,10 +91,13 @@ public sealed class SearchOnIndexOfTokenRecordPreviousToken<TRecord, TToken>
         var hasTokens = tokens.Length > 0;
         var recordComparer = Index.RecordComparer;
         var tokenComparer = Index.TokenComparer;
-        using var iterator1 = Index.ZoneTree1.CreateIterator();
-        using var iterator2 = Index.ZoneTree1.CreateIterator();
+        using var iterator1 = Index.ZoneTree1.CreateIterator(
+            IteratorType.NoRefresh,
+            contributeToTheBlockCache: false);
+        using var iterator2 = Index.ZoneTree1.CreateIterator(
+            IteratorType.NoRefresh,
+            contributeToTheBlockCache: false);
         var facet = firstLookAt ?? (hasTokens ? tokens[0] : facets[0]);
-        TToken facetPreviousToken = Index.FacetPreviousToken;
         var records = hasTokens ?
             FindRecordsMatchingAllTokens(tokens, facets, skip, limit) :
             FindRecordsMatchingAnyOfTheFacets(facets, skip, limit);
@@ -98,6 +106,7 @@ public sealed class SearchOnIndexOfTokenRecordPreviousToken<TRecord, TToken>
         bool DoesRecordContainAllTokens(ReadOnlySpan<TToken> tokens, TRecord record)
         {
             var len = tokens.Length;
+            if (len == 0) return false;
             var previousTokenDoesNotExist = true;
             var previousToken = default(TToken);
             for (var i = 0; i < len; ++i)
@@ -133,7 +142,7 @@ public sealed class SearchOnIndexOfTokenRecordPreviousToken<TRecord, TToken>
         bool DoesRecordContainAnyOfTheFacets(ReadOnlySpan<TToken> facets, TRecord record)
         {
             var len = facets.Length;
-            if (len == 0) return true;
+            if (len == 0) return true; // special case for facets.
             var previousToken = default(TToken);
             for (var i = 0; i < len; ++i)
             {
@@ -151,7 +160,7 @@ public sealed class SearchOnIndexOfTokenRecordPreviousToken<TRecord, TToken>
                     hasRecordForCurrentToken =
                         tokenComparer.AreEqual(key.Token, token) &&
                         recordComparer.AreEqual(key.Record, record) &&
-                        tokenComparer.AreEqual(key.PreviousToken, facetPreviousToken);
+                        tokenComparer.AreEqual(key.PreviousToken, token);
                 }
                 if (hasRecordForCurrentToken)
                     return true;
@@ -177,6 +186,7 @@ public sealed class SearchOnIndexOfTokenRecordPreviousToken<TRecord, TToken>
             TRecord skipRecord = default;
             while (iterator1.Next())
             {
+                if (cancellationToken.IsCancellationRequested) return records;
                 var key = iterator1.CurrentKey;
                 var record = key.Record;
                 if (recordComparer.AreEqual(skipRecord, record)) continue;
@@ -232,10 +242,11 @@ public sealed class SearchOnIndexOfTokenRecordPreviousToken<TRecord, TToken>
                     limit += skip;
                 while (iterator1.Next())
                 {
+                    if (cancellationToken.IsCancellationRequested) return records;
                     var key = iterator1.CurrentKey;
                     var record = key.Record;
                     if (tokenComparer.AreNotEqual(key.Token, facet)) break;
-                    if (tokenComparer.AreNotEqual(key.PreviousToken, facetPreviousToken)) continue;
+                    if (tokenComparer.AreNotEqual(key.PreviousToken, facet)) continue;
                     if (skipRecords.Contains(record)) continue;
 
                     // If the record is already processed, just skip it.

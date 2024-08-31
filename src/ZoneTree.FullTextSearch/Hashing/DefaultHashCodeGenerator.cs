@@ -1,4 +1,6 @@
-﻿namespace ZoneTree.FullTextSearch.Core;
+﻿using ZoneTree.FullTextSearch.Normalizers;
+
+namespace ZoneTree.FullTextSearch.Hashing;
 
 /// <summary>
 /// Provides methods to generate a consistent hash code for strings and text spans.

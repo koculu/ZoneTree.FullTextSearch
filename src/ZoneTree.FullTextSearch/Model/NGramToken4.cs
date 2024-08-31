@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace ZoneTree.FullTextSearch.Core.Model;
+namespace ZoneTree.FullTextSearch.Model;
 
 /// <summary>
 /// Represents a 4-character n-gram token that can be accessed either as a 64-bit unsigned integer

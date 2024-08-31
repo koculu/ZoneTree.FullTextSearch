@@ -1,4 +1,4 @@
-﻿namespace ZoneTree.FullTextSearch.Core.Util;
+﻿namespace ZoneTree.FullTextSearch.Misc;
 
 /// <summary>
 /// Provides functionality to iterate through files in a specified directory based on a search pattern,
