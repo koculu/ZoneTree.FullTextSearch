@@ -22,7 +22,7 @@ public sealed class HashedSearchEngineTests
         searchEngine.AddRecord(record, text);
 
         // Assert
-        var searchResult = searchEngine.Search("sample");
+        var searchResult = searchEngine.SimpleSearch("sample");
         Assert.That(searchResult, Is.Not.Empty);
         Assert.That(searchResult, Contains.Item(record));
     }
@@ -45,7 +45,7 @@ public sealed class HashedSearchEngineTests
 
         // Assert
         Assert.That(deletedCount, Is.EqualTo(2));
-        var searchResult = searchEngine.Search("sample");
+        var searchResult = searchEngine.SimpleSearch("sample");
         Assert.That(searchResult, Is.Empty);
     }
 
@@ -64,7 +64,7 @@ public sealed class HashedSearchEngineTests
         searchEngine.AddRecord(record2, "brown fox jumps");
 
         // Act
-        var searchResult = searchEngine.Search("brown fox");
+        var searchResult = searchEngine.SimpleSearch("brown fox");
 
         // Assert
         Assert.That(searchResult.Length, Is.EqualTo(2));
@@ -87,7 +87,7 @@ public sealed class HashedSearchEngineTests
         searchEngine.AddRecord(record2, "fox brown jumps");
 
         // Act
-        var searchResult = searchEngine.Search("brown fox", respectTokenOrder: false);
+        var searchResult = searchEngine.SimpleSearch("brown fox", respectTokenOrder: false);
 
         // Assert
         Assert.That(searchResult.Length, Is.EqualTo(2));
@@ -109,7 +109,7 @@ public sealed class HashedSearchEngineTests
         searchEngine.AddRecord(3, "record three");
 
         // Act
-        var searchResult = searchEngine.Search("record", skip: 1, limit: 1);
+        var searchResult = searchEngine.SimpleSearch("record", skip: 1, limit: 1);
 
         // Assert
         Assert.That(searchResult.Length, Is.EqualTo(1));

@@ -1,4 +1,4 @@
-﻿namespace ZoneTree.FullTextSearch.Core.Tokenizer;
+﻿namespace ZoneTree.FullTextSearch.Tokenizer;
 
 /// <summary>
 /// Defines an interface for tokenizing a text into slices. Implementations of this interface 

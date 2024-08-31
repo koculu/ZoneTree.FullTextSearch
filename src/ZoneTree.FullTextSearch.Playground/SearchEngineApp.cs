@@ -1,8 +1,10 @@
 ﻿using System.Diagnostics;
 using System.Runtime;
 using ZoneTree.FullTextSearch.SearchEngines;
-using ZoneTree.FullTextSearch.Core.Tokenizer;
-using ZoneTree.FullTextSearch.Core.Util;
+using ZoneTree.FullTextSearch.Normalizers;
+using ZoneTree.FullTextSearch.Hashing;
+using ZoneTree.FullTextSearch.Tokenizer;
+using ZoneTree.FullTextSearch.Misc;
 
 namespace ZoneTree.FullTextSearch.Playground;
 
@@ -10,11 +12,13 @@ public sealed class SearchEngineApp : IDisposable
 {
     readonly string DataPath = "data";
 
-    public readonly string DefaultIndexPath = @"D:\code\modern";
+    public readonly string DefaultIndexPath = @"D:\code";
 
     public readonly string DefaultFilePattern = "*.cs";
 
     readonly bool UseSecondaryIndex = false;
+
+    readonly bool UseDiacriticNormalizer = false;
 
     readonly HashedSearchEngine<long> SearchEngine;
 
@@ -22,10 +26,14 @@ public sealed class SearchEngineApp : IDisposable
 
     public SearchEngineApp()
     {
+        var hashGenerator = UseDiacriticNormalizer ? new NormalizableHashCodeGenerator(
+           new DiacriticNormalizer(), false) : null;
+
         SearchEngine = new HashedSearchEngine<long>(
             DataPath,
             UseSecondaryIndex,
-            new WordTokenizer(3));
+            new WordTokenizer(3),
+            hashCodeGenerator: hashGenerator);
         RecordTable = new RecordTable<long, string>(DataPath);
     }
 
@@ -59,7 +67,7 @@ public sealed class SearchEngineApp : IDisposable
                     case "1":
                         var o = ConfigureIndex();
                         CreateIndex(o.indexPath, o.pattern, true);
-                        return;
+                        break;
                     case "2":
                         Search();
                         break;
@@ -258,20 +266,20 @@ public sealed class SearchEngineApp : IDisposable
         while (true)
         {
             Console.Clear();
-            Console.WriteLine("Start with '-' to delete the search results.");
+            Console.WriteLine("Start with '[DEL]' to delete the search results.");
             Console.WriteLine("Enter search query (or 'q' to return to main menu):");
             var text = Console.ReadLine();
             if (text.Equals("q", StringComparison.InvariantCultureIgnoreCase)) break;
 
             var isDeleteRequest = false;
-            if (text.StartsWith('-'))
+            if (text.StartsWith("[DEL]", StringComparison.InvariantCultureIgnoreCase))
             {
-                text = text.Substring(1);
+                text = text.Substring(5);
                 isDeleteRequest = true;
             }
 
             var sw = Stopwatch.StartNew();
-            var result = SearchEngine.Search(text, true, 0, 5);
+            var result = SearchEngine.Search(text, 0, 5);
             var elapsed = sw.ElapsedMilliseconds;
             Console.WriteLine($"Found {result.Length} records in {elapsed} ms.");
 
@@ -289,6 +297,7 @@ public sealed class SearchEngineApp : IDisposable
             }
 
             var i = 1;
+            var continueLoop = false;
             foreach (var record in result)
             {
                 RecordTable.TryGetValue(record, out var path);
@@ -296,12 +305,17 @@ public sealed class SearchEngineApp : IDisposable
 
                 if (i % 10 == 0)
                 {
-                    Console.WriteLine("Press 'Enter' to continue viewing the next set of records, or 'q' to return to the main menu.");
+                    Console.WriteLine("Press 'Enter' to continue viewing the next set of records, or 'q' to return to the search.");
                     var key = Console.ReadKey().KeyChar;
-                    if (key == 'q' || key == 'Q') return;
+                    if (key == 'q' || key == 'Q')
+                    {
+                        continueLoop = true;
+                        break;
+                    }
                 }
                 ++i;
             }
+            if (continueLoop) continue;
 
             Console.WriteLine("End of results. Press any key to perform another search or 'q' to return to the main menu...");
             if (Console.ReadKey().KeyChar == 'q') break;

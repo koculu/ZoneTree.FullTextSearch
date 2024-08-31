@@ -1,4 +1,6 @@
-﻿namespace ZoneTree.FullTextSearch.Core.Tokenizer;
+﻿using ZoneTree.FullTextSearch.Hashing;
+
+namespace ZoneTree.FullTextSearch.Tokenizer;
 
 /// <summary>
 /// A tokenizer that splits text into tokens based on word boundaries. This class implements
@@ -30,7 +32,7 @@ public sealed class WordTokenizer : IWordTokenizer
     HashSet<ulong> StopWords { get; } = new();
 
     /// <summary>
-    /// The hash code generator used to generate hash codes for tokens.
+    /// The hash code generator used to generate hash codes for stop words.
     /// </summary>
     readonly IHashCodeGenerator HashCodeGenerator;
 
@@ -40,14 +42,16 @@ public sealed class WordTokenizer : IWordTokenizer
     /// </summary>
     /// <param name="mimimumTokenLength">The minimum length of tokens to include in the results. Must be non-negative.</param>
     /// <param name="includeDigits">Whether to include digits in the tokens. Defaults to false.</param>
-    /// <param name="useStopWords">Whether to filter out stop words from the tokens. Defaults to false.</param>
-    /// <param name="hashCodeGenerator">The hash code generator used to generate hash codes for the tokens. If null, a default generator is used.</param>
+    /// <param name="hashCodeGenerator">The hash code generator used to generate hash codes for the stop words. If null, a default generator is used.</param>
+    /// <param name="useStopWords">Whether to filter out stop words from the tokens. Defaults to false.</param>    
+    /// <param name="customStopWords">The custom stop words list. If it is null, the default stop words list will be used. Defaults to null.</param>
     /// <exception cref="ArgumentException">Thrown when <paramref name="mimimumTokenLength"/> is negative.</exception>
     public WordTokenizer(
         int mimimumTokenLength = 3,
         bool includeDigits = false,
+        IHashCodeGenerator hashCodeGenerator = null,
         bool useStopWords = false,
-        IHashCodeGenerator hashCodeGenerator = null)
+        string[] customStopWords = null)
     {
         if (mimimumTokenLength < 0)
             throw new ArgumentException($"{nameof(mimimumTokenLength)} can't be negative.");
@@ -56,7 +60,7 @@ public sealed class WordTokenizer : IWordTokenizer
         IncludeDigits = includeDigits;
         UseStopWords = useStopWords;
         if (useStopWords)
-            AddStopWords(DefaultStopWords);
+            AddStopWords(customStopWords ?? DefaultStopWords);
     }
 
     /// <summary>
@@ -79,7 +83,7 @@ public sealed class WordTokenizer : IWordTokenizer
         var len = stopWords.Length;
         for (var i = 0; i < len; i++)
         {
-            string stopWord = stopWords[i];
+            var stopWord = stopWords[i];
             StopWords.Add(HashCodeGenerator.GetHashCode(stopWord));
         }
     }

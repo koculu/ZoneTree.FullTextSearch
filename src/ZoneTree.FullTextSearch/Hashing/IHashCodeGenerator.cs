@@ -1,4 +1,4 @@
-﻿namespace ZoneTree.FullTextSearch.Core;
+﻿namespace ZoneTree.FullTextSearch.Hashing;
 
 /// <summary>
 /// Interface for generating hash codes from various text inputs.

@@ -1,4 +1,4 @@
-﻿namespace ZoneTree.FullTextSearch.Core.Tokenizer;
+﻿namespace ZoneTree.FullTextSearch.Tokenizer;
 
 /// <summary>
 /// A static class that provides extension methods for slicing operations on ReadOnlyMemory and ReadOnlySpan.
