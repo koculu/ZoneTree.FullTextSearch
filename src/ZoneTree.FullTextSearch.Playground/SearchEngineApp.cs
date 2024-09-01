@@ -242,8 +242,10 @@ public sealed class SearchEngineApp : IDisposable
 
             sw.Restart();
             SearchEngine.Index.EvictToDisk();
+            RecordTable.EvictToDisk();
             Console.WriteLine("Waiting for background threads...");
             SearchEngine.Index.WaitForBackgroundThreads();
+            RecordTable.WaitForBackgroundThreads();
             Console.WriteLine("Merging completed in: " + sw.ElapsedMilliseconds + " ms");
             if (cancellationTokenSource.IsCancellationRequested && isInteractive)
             {

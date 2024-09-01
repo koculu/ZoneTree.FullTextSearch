@@ -169,7 +169,7 @@ public sealed class IndexOfTokenRecordPreviousToken<TRecord, TToken>
     public bool IsIndexDropped { get => isDropped; }
 
     /// <summary>
-    /// Evicts inactive data from memory to disk in both primary and secondary zone trees.
+    /// Evicts data from memory to disk in both primary and secondary zone trees.
     /// </summary>
     public void EvictToDisk()
     {

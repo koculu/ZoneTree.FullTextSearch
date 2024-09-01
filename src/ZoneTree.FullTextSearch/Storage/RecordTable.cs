@@ -34,7 +34,7 @@ public sealed class RecordTable<TRecord, TValue> : IDisposable where TRecord : u
     /// </summary>
     public bool IsDropped { get => isDropped; }
 
-    bool isDropped = false;
+    bool isDropped;
 
     /// <summary>
     /// Initializes a new instance of the RecordTable class, setting up the two ZoneTrees and their maintainers.
@@ -106,6 +106,15 @@ public sealed class RecordTable<TRecord, TValue> : IDisposable where TRecord : u
     }
 
     /// <summary>
+    /// Throws an exception if the index has been dropped, preventing further operations on a dropped index.
+    /// </summary>
+    void ThrowIfIndexIsDropped()
+    {
+        if (isDropped)
+            throw new Exception($"{nameof(RecordTable<TRecord, TValue>)} is dropped.");
+    }
+
+    /// <summary>
     /// Tries to retrieve a record associated with a given value.
     /// </summary>
     /// <param name="value">The value to look up the associated record for.</param>
@@ -114,6 +123,36 @@ public sealed class RecordTable<TRecord, TValue> : IDisposable where TRecord : u
     public bool TryGetRecord(TValue value, out TRecord record)
     {
         return ZoneTree2.TryGet(value, out record);
+    }
+
+    /// <summary>
+    /// Evicts data from memory to disk in both primary and secondary zone trees.
+    /// </summary>
+    public void EvictToDisk()
+    {
+        ThrowIfIndexIsDropped();
+        Maintainer1.EvictToDisk();
+        Maintainer2.EvictToDisk();
+    }
+
+    /// <summary>
+    /// Attempts to cancel any background threads associated with maintenance tasks for both zone trees.
+    /// </summary>
+    public void TryCancelBackgroundThreads()
+    {
+        ThrowIfIndexIsDropped();
+        Maintainer1.TryCancelBackgroundThreads();
+        Maintainer2.TryCancelBackgroundThreads();
+    }
+
+    /// <summary>
+    /// Waits for all background threads associated with maintenance tasks to complete for both zone trees.
+    /// </summary>
+    public void WaitForBackgroundThreads()
+    {
+        ThrowIfIndexIsDropped();
+        Maintainer1.WaitForBackgroundThreads();
+        Maintainer2.WaitForBackgroundThreads();
     }
 
     /// <summary>
