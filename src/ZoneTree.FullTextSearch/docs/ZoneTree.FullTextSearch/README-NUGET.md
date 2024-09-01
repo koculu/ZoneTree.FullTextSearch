@@ -7,7 +7,7 @@
 
 ## Overview
 
-**ZoneTree.FullTextSearch** is an open-source library for implementing full-text search engines using the ZoneTree storage engine. The library is designed for high performance and flexibility, offering the ability to index and search text data efficiently. The first search engine implementation in this library is the **HashedSearchEngine**, which provides a fast, lightweight and reliable full-text search using hashed tokens.
+**ZoneTree.FullTextSearch** is an open-source library for implementing full-text search engines using the [ZoneTree](https://github.com/koculu/ZoneTree) storage engine. The library is designed for high performance and flexibility, offering the ability to index and search text data efficiently. The first search engine implementation in this library is the **HashedSearchEngine**, which provides a fast, lightweight and reliable full-text search using hashed tokens.
 
 ## Key Features
 
