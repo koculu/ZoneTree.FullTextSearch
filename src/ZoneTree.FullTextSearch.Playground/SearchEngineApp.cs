@@ -281,9 +281,10 @@ public sealed class SearchEngineApp : IDisposable
             }
 
             var sw = Stopwatch.StartNew();
-            var result = SearchEngine.Search(text, 0, 5);
+            var pageLimit = 100;
+            var result = SearchEngine.Search(text, 0, pageLimit);
             var elapsed = sw.ElapsedMilliseconds;
-            Console.WriteLine($"Found {result.Length} records in {elapsed} ms.");
+            Console.WriteLine($"Found {result.Length} records in {elapsed} ms. (Search limited to {pageLimit} records.)");
 
             if (isDeleteRequest)
             {

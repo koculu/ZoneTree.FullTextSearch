@@ -125,7 +125,8 @@ public sealed class IndexOfTokenRecordPreviousToken<TRecord, TToken>
         ZoneTree1 = factory1.OpenOrCreate();
         Maintainer1 = ZoneTree1.CreateMaintainer();
         Maintainer1.InactiveBlockCacheCleanupInterval = TimeSpan.FromSeconds(30);
-        Maintainer1.DiskSegmentBufferLifeTime = blockCacheLifeTimeInMilliseconds;
+        Maintainer1.BlockCacheLifeTime =
+            TimeSpan.FromMilliseconds(blockCacheLifeTimeInMilliseconds);
         Maintainer1.EnableJobForCleaningInactiveCaches = true;
         RecordComparer = recordComparer;
         TokenComparer = tokenComparer;
@@ -147,7 +148,8 @@ public sealed class IndexOfTokenRecordPreviousToken<TRecord, TToken>
             ZoneTree2 = factory2.OpenOrCreate();
             Maintainer2 = ZoneTree2.CreateMaintainer();
             Maintainer2.InactiveBlockCacheCleanupInterval = TimeSpan.FromSeconds(30);
-            Maintainer2.DiskSegmentBufferLifeTime = blockCacheLifeTimeInMilliseconds;
+            Maintainer2.BlockCacheLifeTime =
+                TimeSpan.FromMilliseconds(blockCacheLifeTimeInMilliseconds);
             Maintainer2.EnableJobForCleaningInactiveCaches = true;
         }
         searchAlgorithm = new(this);

@@ -64,8 +64,8 @@ public sealed class RecordTable<TRecord, TValue> : IDisposable where TRecord : u
         Maintainer1.InactiveBlockCacheCleanupInterval = TimeSpan.FromSeconds(30);
         Maintainer2.InactiveBlockCacheCleanupInterval = TimeSpan.FromSeconds(30);
 
-        Maintainer1.DiskSegmentBufferLifeTime = blockCacheLifeTimeInMilliseconds;
-        Maintainer2.DiskSegmentBufferLifeTime = blockCacheLifeTimeInMilliseconds;
+        Maintainer1.BlockCacheLifeTime = TimeSpan.FromMilliseconds(blockCacheLifeTimeInMilliseconds);
+        Maintainer2.BlockCacheLifeTime = TimeSpan.FromMilliseconds(blockCacheLifeTimeInMilliseconds);
 
         Maintainer1.EnableJobForCleaningInactiveCaches = true;
         Maintainer2.EnableJobForCleaningInactiveCaches = true;
