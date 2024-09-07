@@ -119,7 +119,8 @@ public sealed class IndexOfTokenRecordPreviousToken<TRecord, TToken>
             tokenComparer = ComponentsForKnownTypes.GetComparer<TToken>();
         var factory1 = new ZoneTreeFactory<CompositeKeyOfTokenRecordPrevious<TRecord, TToken>, byte>()
             .SetDataDirectory($"{dataPath}/index1")
-            .SetIsValueDeletedDelegate((in byte x) => x == 1)
+            .SetIsDeletedDelegate(
+                (in CompositeKeyOfTokenRecordPrevious<TRecord, TToken> key, in byte value) => value == 1)
             .SetMarkValueDeletedDelegate((ref byte x) => x = 1)
             .SetKeySerializer(new StructSerializer<CompositeKeyOfTokenRecordPrevious<TRecord, TToken>>())
             .SetComparer(
@@ -142,7 +143,8 @@ public sealed class IndexOfTokenRecordPreviousToken<TRecord, TToken>
         {
             var factory2 = new ZoneTreeFactory<CompositeKeyOfRecordToken<TRecord, TToken>, byte>()
                 .SetDataDirectory($"{dataPath}/index2")
-                .SetIsValueDeletedDelegate((in byte x) => x == 1)
+                .SetIsDeletedDelegate(
+                    (in CompositeKeyOfRecordToken<TRecord, TToken> key, in byte value) => value == 1)
                 .SetMarkValueDeletedDelegate((ref byte x) => x = 1)
                 .SetKeySerializer(new StructSerializer<CompositeKeyOfRecordToken<TRecord, TToken>>())
                 .SetComparer(
@@ -239,7 +241,7 @@ public sealed class IndexOfTokenRecordPreviousToken<TRecord, TToken>
             Record = record,
             Token = token,
         };
-        ZoneTree2.TryAdd(key, new());
+        ZoneTree2.TryAdd(key, new(), out _);
     }
 
     /// <summary>
