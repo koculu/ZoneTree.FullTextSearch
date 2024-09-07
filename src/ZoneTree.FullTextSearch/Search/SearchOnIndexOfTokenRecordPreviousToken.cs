@@ -198,10 +198,8 @@ public sealed class SearchOnIndexOfTokenRecordPreviousToken<TRecord, TToken>
                 // different previous token.
                 if (records.Contains(record)) continue;
 
-                if (!DoesRecordContainAllTokens(tokens, record))
-                    continue;
-
-                if (!DoesRecordContainAnyOfTheFacets(facets, record))
+                if (!DoesRecordContainAllTokens(tokens, record) ||
+                    !DoesRecordContainAnyOfTheFacets(facets, record))
                     continue;
 
                 if (off >= skip)

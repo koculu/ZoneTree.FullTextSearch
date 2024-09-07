@@ -413,7 +413,7 @@ public sealed class HashedSearchEngine<TRecord> : IDisposable
         Index.Drop();
     }
 
-    bool isDisposed = false;
+    bool isDisposed;
 
     /// <summary>
     /// Disposes the resources used by the search engine.

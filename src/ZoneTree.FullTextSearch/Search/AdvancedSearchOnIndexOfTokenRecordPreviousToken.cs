@@ -284,7 +284,10 @@ public sealed class AdvancedSearchOnIndexOfTokenRecordPreviousToken<TRecord, TTo
                     if (records.Contains(record)) continue;
 
                     if (!DoesRecordMatchesTheQuery(query.QueryNode, record))
+                    {
+                        skipRecords.Add(record);
                         continue;
+                    }
 
                     if (off >= skip)
                     {
@@ -325,7 +328,10 @@ public sealed class AdvancedSearchOnIndexOfTokenRecordPreviousToken<TRecord, TTo
                 if (records.Contains(record)) continue;
 
                 if (!DoesRecordMatchesTheQuery(query.QueryNode, record))
+                {
+                    skipRecords.Add(record);
                     continue;
+                }
 
                 if (off >= skip)
                 {
