@@ -20,6 +20,8 @@ public sealed class SearchEngineApp : IDisposable
 
     readonly bool UseDiacriticNormalizer = false;
 
+    readonly bool IndexInBackground = false;
+
     readonly HashedSearchEngine<long> SearchEngine;
 
     readonly RecordTable<long, string> RecordTable;
@@ -66,7 +68,10 @@ public sealed class SearchEngineApp : IDisposable
                 {
                     case "1":
                         var o = ConfigureIndex();
-                        CreateIndex(o.indexPath, o.pattern, true);
+                        if (IndexInBackground)
+                            Task.Run(() => CreateIndex(o.indexPath, o.pattern, false));
+                        else
+                            CreateIndex(o.indexPath, o.pattern, true);
                         break;
                     case "2":
                         Search();

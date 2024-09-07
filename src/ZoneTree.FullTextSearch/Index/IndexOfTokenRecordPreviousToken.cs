@@ -20,6 +20,18 @@ public sealed class IndexOfTokenRecordPreviousToken<TRecord, TToken>
     where TRecord : unmanaged
     where TToken : unmanaged
 {
+    readonly bool useSecondaryIndex;
+
+    bool isDropped;
+
+    bool isDisposed;
+
+    readonly SearchOnIndexOfTokenRecordPreviousToken<TRecord, TToken>
+        searchAlgorithm;
+
+    readonly AdvancedSearchOnIndexOfTokenRecordPreviousToken<TRecord, TToken>
+        advancedSearchAlgorithm;
+
     /// <summary>
     /// Gets the primary zone tree used to store and retrieve records by token and previous token.
     /// </summary>
@@ -70,15 +82,10 @@ public sealed class IndexOfTokenRecordPreviousToken<TRecord, TToken>
         }
     }
 
-    readonly bool useSecondaryIndex;
-
-    bool isDropped = false;
-
-    readonly SearchOnIndexOfTokenRecordPreviousToken<TRecord, TToken>
-        searchAlgorithm;
-
-    readonly AdvancedSearchOnIndexOfTokenRecordPreviousToken<TRecord, TToken>
-        advancedSearchAlgorithm;
+    /// <summary>
+    /// Returns true if the index is dropped, otherwise false.
+    /// </summary>
+    public bool IsIndexDropped { get => isDropped; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="IndexOfTokenRecordPreviousToken{TRecord, TToken}"/> class,
@@ -164,11 +171,6 @@ public sealed class IndexOfTokenRecordPreviousToken<TRecord, TToken>
         if (isDropped) throw new Exception($"{nameof(
             IndexOfTokenRecordPreviousToken<TRecord, TToken>)} is dropped.");
     }
-
-    /// <summary>
-    /// Returns true if the index is dropped, otherwise false.
-    /// </summary>
-    public bool IsIndexDropped { get => isDropped; }
 
     /// <summary>
     /// Evicts data from memory to disk in both primary and secondary zone trees.
@@ -400,8 +402,6 @@ public sealed class IndexOfTokenRecordPreviousToken<TRecord, TToken>
     {
         return advancedSearchAlgorithm.Search(query, cancellationToken);
     }
-
-    bool isDisposed = false;
 
     /// <summary>
     /// Disposes the resources used by the index.

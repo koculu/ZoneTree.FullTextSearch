@@ -10,7 +10,9 @@ namespace ZoneTree.FullTextSearch;
 /// <typeparam name="TRecord">The type of the record component of the key. Must be an unmanaged type.</typeparam>
 /// <typeparam name="TToken">The type of the token components of the key. Must be an unmanaged type.</typeparam>
 [StructLayout(LayoutKind.Sequential)]
-public struct CompositeKeyOfTokenRecordPrevious<TRecord, TToken> : IEquatable<CompositeKeyOfTokenRecordPrevious<TRecord, TToken>> where TRecord : unmanaged
+public struct CompositeKeyOfTokenRecordPrevious<TRecord, TToken>
+    : IEquatable<CompositeKeyOfTokenRecordPrevious<TRecord, TToken>>
+    where TRecord : unmanaged
     where TToken : unmanaged
 {
     /// <summary>
