@@ -174,6 +174,7 @@ public sealed class SearchOnIndexOfTokenRecordPreviousToken<TRecord, TToken>
             int skip,
             int limit)
         {
+            var skipRecords = new HashSet<TRecord>();
             var records = new HashSet<TRecord>();
             iterator1.Seek(new CompositeKeyOfTokenRecordPrevious<TRecord, TToken>()
             {
@@ -198,11 +199,14 @@ public sealed class SearchOnIndexOfTokenRecordPreviousToken<TRecord, TToken>
                 // different previous token.
                 if (records.Contains(record)) continue;
 
-                if (!DoesRecordContainAllTokens(tokens, record))
-                    continue;
+                if (skipRecords.Contains(record)) continue;
 
-                if (!DoesRecordContainAnyOfTheFacets(facets, record))
+                if (!DoesRecordContainAllTokens(tokens, record) ||
+                    !DoesRecordContainAnyOfTheFacets(facets, record))
+                {
+                    skipRecords.Add(record);
                     continue;
+                }
 
                 if (off >= skip)
                 {
