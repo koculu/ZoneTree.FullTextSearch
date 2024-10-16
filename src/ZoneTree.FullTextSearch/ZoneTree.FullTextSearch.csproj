@@ -38,7 +38,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="ZoneTree" Version="1.8.2" />
+    <PackageReference Include="ZoneTree" Version="1.8.3" />
   </ItemGroup>
 
   <ItemGroup>

@@ -234,7 +234,7 @@ public sealed class IndexOfTokenRecordPreviousToken<TRecord, TToken>
             Token = token,
             Record = record,
             PreviousToken = previousToken
-        }, new());
+        }, 0);
         if (!useSecondaryIndex) return;
         var key = new CompositeKeyOfRecordToken<TRecord, TToken>()
         {
