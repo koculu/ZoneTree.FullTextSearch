@@ -5,8 +5,8 @@
     <Authors>Ahmed Yasin Koculu</Authors>
     <PackageId>ZoneTree.FullTextSearch</PackageId>
     <Title>ZoneTree.FullTextSearch</Title>
-    <ProductVersion>1.0.6.0</ProductVersion>
-    <Version>1.0.6.0</Version>
+    <ProductVersion>1.0.7.0</ProductVersion>
+    <Version>1.0.7.0</Version>
     <Authors>Ahmed Yasin Koculu</Authors>
     <AssemblyTitle>ZoneTree.FullTextSearch</AssemblyTitle>
     <Description>ZoneTree.FullTextSearch is an open-source library that extends ZoneTree to provide efficient full-text search capabilities. It offers a fast, embedded search engine suitable for applications that require high performance and do not rely on external databases.</Description>
