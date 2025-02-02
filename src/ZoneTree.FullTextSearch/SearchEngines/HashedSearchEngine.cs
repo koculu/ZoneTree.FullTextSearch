@@ -10,6 +10,8 @@ using ZoneTree.FullTextSearch.Search;
 using ZoneTree.FullTextSearch.Tokenizer;
 using ZoneTree.FullTextSearch.Hashing;
 using System.Security.Cryptography;
+using ZoneTree.FullTextSearch.Model;
+using Tenray.ZoneTree.AbstractFileStream;
 
 namespace ZoneTree.FullTextSearch.SearchEngines;
 
@@ -36,6 +38,11 @@ public sealed class HashedSearchEngine<TRecord> : IDisposable
     readonly IHashCodeGenerator HashCodeGenerator;
 
     /// <summary>
+    /// The flag that describes if the instance is disposed.
+    /// </summary>
+    bool isDisposed;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="HashedSearchEngine{TRecord}"/> class.
     /// </summary>
     /// <param name="dataPath">The path to the data storage, defaulting to "data".</param>
@@ -44,13 +51,15 @@ public sealed class HashedSearchEngine<TRecord> : IDisposable
     /// <param name="wordTokenizer">The tokenizer used to split words. If null, a default tokenizer is used.</param>
     /// <param name="hashCodeGenerator">The hash code generator used to generate hash codes for the tokens. If null, a default generator is used.</param>
     /// <param name="blockCacheLifeTimeInMilliseconds">Defines the life time of cached blocks. Default is 1 minute.</param>
+    /// <param name="advancedOptions">Advanced ZoneTree Options enabling customization of underlying ZoneTree instances.</param>
     public HashedSearchEngine(
         string dataPath = "data",
         bool useSecondaryIndex = false,
         IWordTokenizer wordTokenizer = null,
         IRefComparer<TRecord> recordComparer = null,
         IHashCodeGenerator hashCodeGenerator = null,
-        long blockCacheLifeTimeInMilliseconds = 60_000)
+        long blockCacheLifeTimeInMilliseconds = 60_000,
+        AdvancedZoneTreeOptions<TRecord, ulong> advancedOptions = null)
     {
         HashCodeGenerator = hashCodeGenerator ?? new DefaultHashCodeGenerator();
         Index = new(
@@ -58,7 +67,8 @@ public sealed class HashedSearchEngine<TRecord> : IDisposable
             recordComparer,
             new UInt64ComparerAscending(),
             useSecondaryIndex,
-            blockCacheLifeTimeInMilliseconds: blockCacheLifeTimeInMilliseconds);
+            blockCacheLifeTimeInMilliseconds,
+            advancedOptions);
         WordTokenizer =
             wordTokenizer ??
             new WordTokenizer(hashCodeGenerator: HashCodeGenerator);
@@ -412,8 +422,6 @@ public sealed class HashedSearchEngine<TRecord> : IDisposable
     {
         Index.Drop();
     }
-
-    bool isDisposed;
 
     /// <summary>
     /// Disposes the resources used by the search engine.

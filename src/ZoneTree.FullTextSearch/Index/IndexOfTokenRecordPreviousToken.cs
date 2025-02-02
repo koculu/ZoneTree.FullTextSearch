@@ -6,6 +6,7 @@ using Tenray.ZoneTree.Serializers;
 using ZoneTree.FullTextSearch.Model;
 using ZoneTree.FullTextSearch.QueryLanguage;
 using ZoneTree.FullTextSearch.Search;
+using ZoneTree.FullTextSearch.SearchEngines;
 
 namespace ZoneTree.FullTextSearch.Index;
 
@@ -91,33 +92,26 @@ public sealed class IndexOfTokenRecordPreviousToken<TRecord, TToken>
     /// Initializes a new instance of the <see cref="IndexOfTokenRecordPreviousToken{TRecord, TToken}"/> class,
     /// with the option to configure primary and secondary zone trees.
     /// </summary>
+    /// <param name="dataPath">The path to the data storage, defaulting to "data".</param>    
     /// <param name="recordComparer">The comparer of record.</param>
     /// <param name="tokenComparer">The comparer of token.</param>
-    /// <param name="useSecondaryIndex">Indicates whether a secondary index should be used to perform faster deletion.</param>
-    /// <param name="dataPath">The path to the data storage, defaulting to "data".</param>
-    /// <param name="configure1">Optional configuration action for the primary zone tree.</param>
-    /// <param name="configure2">Optional configuration action for the secondary zone tree.</param>
+    /// <param name="useSecondaryIndex">Indicates whether a secondary index should be used to perform faster deletion.</param>    
     /// <param name="blockCacheLifeTimeInMilliseconds">Defines the life time of cached blocks. Default is 1 minute.</param>
+    /// /// <param name="advancedOptions">Advanced ZoneTree Options enabling customization of underlying ZoneTree instances.</param>
     public IndexOfTokenRecordPreviousToken(
         string dataPath = "data",
         IRefComparer<TRecord> recordComparer = null,
         IRefComparer<TToken> tokenComparer = null,
         bool useSecondaryIndex = false,
-        Action<
-            ZoneTreeFactory<
-                CompositeKeyOfTokenRecordPrevious<TRecord, TToken>,
-                byte>> configure1 = null,
-        Action<
-            ZoneTreeFactory<
-                CompositeKeyOfRecordToken<TRecord, TToken>,
-                byte>> configure2 = null,
-        long blockCacheLifeTimeInMilliseconds = 60_000)
+        long blockCacheLifeTimeInMilliseconds = 60_000,
+        AdvancedZoneTreeOptions<TRecord, TToken> advancedOptions = null)
     {
         if (recordComparer == null)
             recordComparer = ComponentsForKnownTypes.GetComparer<TRecord>();
         if (tokenComparer == null)
             tokenComparer = ComponentsForKnownTypes.GetComparer<TToken>();
-        var factory1 = new ZoneTreeFactory<CompositeKeyOfTokenRecordPrevious<TRecord, TToken>, byte>()
+        var fileStreamProvider = advancedOptions?.FileStreamProvider;
+        var factory1 = new ZoneTreeFactory<CompositeKeyOfTokenRecordPrevious<TRecord, TToken>, byte>(fileStreamProvider)
             .SetDataDirectory($"{dataPath}/index1")
             .SetIsDeletedDelegate(
                 (in CompositeKeyOfTokenRecordPrevious<TRecord, TToken> key, in byte value) => value == 1)
@@ -128,7 +122,7 @@ public sealed class IndexOfTokenRecordPreviousToken<TRecord, TToken>
                     recordComparer,
                     tokenComparer));
 
-        configure1?.Invoke(factory1);
+        advancedOptions?.FactoryConfigurator1?.Invoke(factory1);
 
         ZoneTree1 = factory1.OpenOrCreate();
         Maintainer1 = ZoneTree1.CreateMaintainer();
@@ -141,7 +135,7 @@ public sealed class IndexOfTokenRecordPreviousToken<TRecord, TToken>
         this.useSecondaryIndex = useSecondaryIndex;
         if (useSecondaryIndex)
         {
-            var factory2 = new ZoneTreeFactory<CompositeKeyOfRecordToken<TRecord, TToken>, byte>()
+            var factory2 = new ZoneTreeFactory<CompositeKeyOfRecordToken<TRecord, TToken>, byte>(fileStreamProvider)
                 .SetDataDirectory($"{dataPath}/index2")
                 .SetIsDeletedDelegate(
                     (in CompositeKeyOfRecordToken<TRecord, TToken> key, in byte value) => value == 1)
@@ -152,7 +146,7 @@ public sealed class IndexOfTokenRecordPreviousToken<TRecord, TToken>
                         recordComparer,
                         tokenComparer));
 
-            configure2?.Invoke(factory2);
+            advancedOptions?.FactoryConfigurator2?.Invoke(factory2);
 
             ZoneTree2 = factory2.OpenOrCreate();
             Maintainer2 = ZoneTree2.CreateMaintainer();
