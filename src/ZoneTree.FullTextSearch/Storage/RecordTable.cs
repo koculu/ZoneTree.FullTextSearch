@@ -1,4 +1,5 @@
 ﻿using Tenray.ZoneTree;
+using Tenray.ZoneTree.AbstractFileStream;
 
 namespace ZoneTree.FullTextSearch;
 
@@ -34,6 +35,9 @@ public sealed class RecordTable<TRecord, TValue> : IDisposable where TRecord : u
     /// </summary>
     public bool IsDropped { get => isDropped; }
 
+    /// <summary>
+    /// The flag that describes if the instance is dropped.
+    /// </summary>
     bool isDropped;
 
     /// <summary>
@@ -43,15 +47,17 @@ public sealed class RecordTable<TRecord, TValue> : IDisposable where TRecord : u
     /// <param name="factory1">Optional configuration action for the first ZoneTree factory.</param>
     /// <param name="factory2">Optional configuration action for the second ZoneTree factory.</param>
     /// <param name="blockCacheLifeTimeInMilliseconds">Defines the life time of cached blocks. Default is 1 minute.</param>
+    /// <param name="fileStreamProvider">Optional custom file stream provider.</param>
     public RecordTable(
         string dataPath = "data",
         Action<ZoneTreeFactory<TRecord, TValue>> factory1 = null,
         Action<ZoneTreeFactory<TValue, TRecord>> factory2 = null,
-        long blockCacheLifeTimeInMilliseconds = 60_000)
+        long blockCacheLifeTimeInMilliseconds = 60_000,
+        IFileStreamProvider fileStreamProvider = null)
     {
-        var f1 = new ZoneTreeFactory<TRecord, TValue>()
+        var f1 = new ZoneTreeFactory<TRecord, TValue>(fileStreamProvider)
             .SetDataDirectory($"{dataPath}/rectable1");
-        var f2 = new ZoneTreeFactory<TValue, TRecord>()
+        var f2 = new ZoneTreeFactory<TValue, TRecord>(fileStreamProvider)
             .SetDataDirectory($"{dataPath}/rectable2");
         factory1?.Invoke(f1);
         factory2?.Invoke(f2);
